@@ -1,6 +1,6 @@
 {
   "name": "Bookmark Search",
-  "version": "1.2",
+  "version": "1.2.1",
   "description": "Search for bookmarks from the omnibox.",
   "background_page": "background.html",
   "omnibox": {"keyword" : "bm"},

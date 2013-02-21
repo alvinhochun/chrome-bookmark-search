@@ -1,7 +1,7 @@
 <html>
     <script>
-		var fullmatch;
-		
+        var automatch;
+        
         function nav2(url,tabbed){
             if(tabbed){
                 chrome.tabs.create({url: url})
@@ -14,7 +14,7 @@
             }
         }
         function nav(url){
-            if(localStorage["tabbed"]){
+            if(url.substr(0,11).toLowerCase()!="javascript:"&&localStorage["tabbed"]){
                 chrome.tabs.create({url: url})
             }else{
                 chrome.tabs.getSelected(null,
@@ -24,83 +24,95 @@
                 );
             }
         }
-		
-		function escapeXML(str){
-			return str.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/'/g,"&apos;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-		}
         
-        if(localStorage["version"]!="1.2"){
-            localStorage["version"]="1.2";
+        function escapeXML(str){
+            return str.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/'/g,"&apos;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        }
+        
+        if(localStorage["version"]!="1.2.1"){
+            localStorage["version"]="1.2.1";
             nav2("whatsnew.html",true);
+        }
+        if(localStorage["tabbed"]=="false"){
+            localStorage["tabbed"]="";
+        }
+        if(localStorage["matchname"]=="false"){
+            localStorage["matchname"]="";
+        }
+        if(!localStorage["maxcount"]||Number(localStorage["maxcount"])<2){
+            localStorage["maxcount"]=5;
         }
         
         chrome.omnibox.onInputChanged.addListener(
             function(text, suggest) {
                 if(text.substr(0,3).toLowerCase()=="go "&&(text.substr(3,7).toLowerCase()=="http://"||text.substr(3,8).toLowerCase()=="https://"||text.substr(3,6).toLowerCase()=="ftp://"||text.substr(3,7).toLowerCase()=="file://"||text.substr(3,11).toLowerCase()=="javascript:")){
-                    chrome.omnibox.setDefaultSuggestion({description: "Go to "+escapeXML(text.substr(3))});
-                    //suggest([{content: "?"+text, description: "Search "+text+" in Bookmarks"}]);
+                    chrome.omnibox.setDefaultSuggestion({description: "Go to <url>"+escapeXML(text.substr(3))+"</url>"});
                     chrome.bookmarks.search(text,
                         function(results) {
                             var s=new Array();
-							s.push({content: "?"+text, description: "Search "+escapeXML(text)+" in Bookmarks"});
+                            s.push({content: "?"+text, description: "Search <match>"+escapeXML(text)+"</match> in Bookmarks"});
                             for(i in results){
-                                if(i>3) break;
-								if(results[i].title){
-									s.push({content: "go "+results[i].url, description: escapeXML(results[i].title)+"<dim> - </dim><url>"+escapeXML(results[i].url)+"</url>"});
-								}else{
-									s.push({content: "go "+results[i].url, description: "<url>"+escapeXML(results[i].url)+"</url>"});
-								}
+                                if(i>Number(localStorage["maxcount"])-2) break;
+                                if(results[i].title){
+                                    s.push({content: "go "+results[i].url, description: escapeXML(results[i].title)+"<dim> - </dim><url>"+escapeXML(results[i].url)+"</url>"});
+                                }else{
+                                    s.push({content: "go "+results[i].url, description: "<url>"+escapeXML(results[i].url)+"</url>"});
+                                }
                             }
                             suggest(s);
-                            //console.log(s);
                         }
                     );
+                }else if(text==""){
+                    chrome.omnibox.setDefaultSuggestion({description: "Please enter keyword to search in Bookmarks"});
+                    suggest([]);
                 }else{
-                    chrome.omnibox.setDefaultSuggestion({description: "Search %s in Bookmarks"});
+                    chrome.omnibox.setDefaultSuggestion({description: "Search <match>%s</match> in Bookmarks"});
                     chrome.bookmarks.search(text,
                         function(results) {
                             var s=new Array();
                             for(i in results){
-                                if(i>4) break;
-								if(results[i].title){
-									s.push({content: "go "+results[i].url, description: escapeXML(results[i].title)+"<dim> - </dim><url>"+escapeXML(results[i].url)+"</url>"});
-								}else{
-									s.push({content: "go "+results[i].url, description: "<url>"+escapeXML(results[i].url)+"</url>"});
-								}
+                                if(i>Number(localStorage["maxcount"])-1) break;
+                                if(results[i].title){
+                                    s.push({content: "go "+results[i].url, description: escapeXML(results[i].title)+"<dim> - </dim><url>"+escapeXML(results[i].url)+"</url>"});
+                                }else{
+                                    s.push({content: "go "+results[i].url, description: "<url>"+escapeXML(results[i].url)+"</url>"});
+                                }
                             }
-							// compare if full match
-                            console.log(s);
-							if(localStorage["matchname"]){
-								if(results[0]&&results[0].title&&results[0].title.toLowerCase()==text.toLowerCase()){
-									fullmatch=results[0];
-									chrome.omnibox.setDefaultSuggestion({description: "<dim>Go to </dim><match>"+escapeXML(results[0].title)+"</match><dim> - </dim><url>"+escapeXML(results[0].url)+"</url>"});
-									s[0]={content: "?"+text, description: "Search "+escapeXML(text)+" in Bookmarks"};
-								}else{
-									fullmatch=0;
-								}
-							}
+                            // check if no result/single result/full match
+                            if(s.length==0){
+                                chrome.omnibox.setDefaultSuggestion({description: "Opps, no results for <match>%s</match> in Bookmarks!"});
+                            }else if(s.length==1){
+                                automatch=results[0];
+                                chrome.omnibox.setDefaultSuggestion({description: "<match>"+escapeXML(results[0].title)+"</match><dim> - </dim><url>"+escapeXML(results[0].url)+"</url>"});
+                                s[0]={content: "?"+text, description: "<dim>Only match for <match>"+escapeXML(text)+"</match> in Bookmarks</dim>"};
+                            }else if(localStorage["matchname"]){
+                                if(results[0]&&results[0].title&&results[0].title.toLowerCase()==text.toLowerCase()){
+                                    automatch=results[0];
+                                    chrome.omnibox.setDefaultSuggestion({description: "<match>"+escapeXML(results[0].title)+"</match><dim> - </dim><url>"+escapeXML(results[0].url)+"</url>"});
+                                    s[0]={content: "?"+text, description: "Search <match>"+escapeXML(text)+"</match> in Bookmarks"};
+                                }else{
+                                    automatch=0;
+                                }
+                            }
                             suggest(s);
                         }
                     );
                 }
-                /*suggest([
-                    {content: text + " one", description: "the first one"},
-                    {content: text + " number two", description: "the second entry"}
-                ]);*/
             }
         );
         chrome.omnibox.onInputEntered.addListener(
             function(text){
-				if(localStorage["matchname"]&&fullmatch){
-					nav(fullmatch.url);
-					fullmatch=0;
-				}
                 if(text.substr(0,3).toLowerCase()=="go "&&(text.substr(3,7).toLowerCase()=="http://"||text.substr(3,8).toLowerCase()=="https://"||text.substr(3,6).toLowerCase()=="ftp://"||text.substr(3,7).toLowerCase()=="file://"||text.substr(3,11).toLowerCase()=="javascript:")){
                     nav(text.substr(3));
                 }else if(text.substr(0,1)=="?"){
                     nav("chrome-extension://eemcgdkfndhakfknompkggombfjjjeno/main.html#q="+text.substr(1));
                 }else{
-                    nav("chrome-extension://eemcgdkfndhakfknompkggombfjjjeno/main.html#q="+text);
+                    if(localStorage["matchname"]&&automatch){
+                        nav(automatch.url);
+                        automatch=0;
+                    }else{
+                        nav("chrome-extension://eemcgdkfndhakfknompkggombfjjjeno/main.html#q="+text);
+                    }
                 }
             }
         );

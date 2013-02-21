@@ -2,27 +2,57 @@
 <head><title>Bookmark Search Extension - Options</title></head>
 <script type="text/javascript">
 function save_options() {
-    localStorage["tabbed"]=document.getElementById("tabbed").checked;
-    localStorage["matchname"]=document.getElementById("matchname").checked;
-    var status = document.getElementById("status");
+	var status = document.getElementById("status");
+	document.getElementById("maxcount").value=Number(document.getElementById("maxcount").value);
+	if(Number(document.getElementById("maxcount").value)<2){
+		status.innerHTML = "<b>Maximum items count</b> cannot be less than 2!";
+		setTimeout(function() {
+			status.innerHTML = "";
+		}, 2000);
+		return;
+	}
+    localStorage["tabbed"]=document.getElementById("tabbed").checked?"true":"";
+    localStorage["matchname"]=document.getElementById("matchname").checked?"true":"";
+    localStorage["maxcount"]=Number(document.getElementById("maxcount").value);
     status.innerHTML = "Options Saved.";
     setTimeout(function() {
         status.innerHTML = "";
-    }, 750);
+    }, 1000);
 }
 function restore_options() {
     document.getElementById("tabbed").checked=localStorage["tabbed"];
     document.getElementById("matchname").checked=localStorage["matchname"];
+    document.getElementById("maxcount").value=Number(localStorage["maxcount"]);
 }
 
 </script>
 
 <body onload="restore_options()">
-<h1>Bookmark Search Extension - Options</h1>
-<input type="checkbox" id="tabbed" onclick="save_options()" /><label for="tabbed">Show search results and pages in new tab</label><br />
-<input type="checkbox" id="matchname" onclick="save_options()" /><label for="matchname">Automatically selects full match on <b>name</b></label><br />
+<h1><a href="https://chrome.google.com/webstore/detail/hhmokalkpaiacdofbcddkogifepbaijk" target="_blank">Bookmark Search</a> Extension - Options</h1>
+<form onsubmit="save_options();return false;" action="#">
+<table>
+<tbody>
+<tr>
+<td style="text-align:right"><label for="tabbed">Show search results and pages in new tab (except javascripts)</label></td>
+<td><input type="checkbox" id="tabbed" onclick="save_options()" /></td>
+</tr>
+<tr>
+<td style="text-align:right"><label for="matchname">Automatically selects full match on <b>name</b></label></td>
+<td><input type="checkbox" id="matchname" onclick="save_options()" /></td>
+</tr>
+<tr>
+<td style="text-align:right"><label for="maxcount">Maximum display items count excluding default selection (min: 2, default:5)<sup>[1]</sup></label></td>
+<td><input type="input" id="maxcount" /></td>
+</tr>
+</tbody>
+</table>
+<input type="submit" value="Save options" />
+</form>
 <div id="status" style="background-color:yellow;color:red;"></div><br />
 <b>Please report if you found bugs!</b>
-<!--button onclick="save_options()">Save</button-->
+<hr />
+[1] I don't expect you to be able to display more than 5.
+<hr />
+<a href="https://chrome.google.com/webstore/detail/hhmokalkpaiacdofbcddkogifepbaijk" target="_blank">Bookmark Search</a> version 1.2.1 (<a href="whatsnew.html" target="_blank">What&apos;s new</a>)
 </body>
 </html>
