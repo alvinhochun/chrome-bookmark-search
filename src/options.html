@@ -3,6 +3,7 @@
 <script type="text/javascript">
 function save_options() {
     localStorage["tabbed"]=document.getElementById("tabbed").checked;
+    localStorage["matchname"]=document.getElementById("matchname").checked;
     var status = document.getElementById("status");
     status.innerHTML = "Options Saved.";
     setTimeout(function() {
@@ -11,14 +12,17 @@ function save_options() {
 }
 function restore_options() {
     document.getElementById("tabbed").checked=localStorage["tabbed"];
+    document.getElementById("matchname").checked=localStorage["matchname"];
 }
 
 </script>
 
 <body onload="restore_options()">
 <h1>Bookmark Search Extension - Options</h1>
-<label for="tabbed">Show search results and pages in new tab:</label><input type="checkbox" id="tabbed" onclick="save_options()" />
-<div id="status" style="background-color:yellow;color:red;"></div>
+<input type="checkbox" id="tabbed" onclick="save_options()" /><label for="tabbed">Show search results and pages in new tab</label><br />
+<input type="checkbox" id="matchname" onclick="save_options()" /><label for="matchname">Automatically selects full match on <b>name</b></label><br />
+<div id="status" style="background-color:yellow;color:red;"></div><br />
+<b>Please report if you found bugs!</b>
 <!--button onclick="save_options()">Save</button-->
 </body>
 </html>
