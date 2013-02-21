@@ -1,12 +1,12 @@
 {
-    "name": "Bookmark Search",
-    "version": "1.3",
-    "manifest_version": 2,
-    "description": "Search for bookmarks from the omnibox.",
-    "icons": {"16": "icon16.png", "48": "icon48.png", "128": "icon128.png"},
-    "background": {"scripts": ["background.js"]},
-    "omnibox": {"keyword" : "bm"},
-    "permissions": ["bookmarks"],
-    "optional_permissions": ["tabs", "<all_urls>"],
-    "options_page": "options.html"
+	"name": "Bookmark Search",
+	"version": "1.3.2",
+	"manifest_version": 2,
+	"description": "Search for bookmarks from the omnibox.",
+	"icons": {"16": "icon16.png", "48": "icon48.png", "128": "icon128.png"},
+	"background": {"scripts": ["background.js"], "persistent": false},
+	"omnibox": {"keyword" : "bm"},
+	"permissions": ["bookmarks"],
+	"optional_permissions": ["tabs", "<all_urls>"],
+	"options_page": "options.html"
 }
