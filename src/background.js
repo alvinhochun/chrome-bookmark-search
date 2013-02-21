@@ -17,7 +17,6 @@ function nav(url){
 }
 
 function execJS(js){
-	//chrome.tabs.executeScript({'code': js});
 	chrome.tabs.update({'url': "javascript:" + js});
 }
 
@@ -27,11 +26,6 @@ function escapeXML(str){
 
 // Check whether new version is installed
 chrome.runtime.onInstalled.addListener(function(details){
-	if(details.reason == "install"){
-		createTab(chrome.runtime.getURL("whatsnew.html?vnone"));
-	}else if(details.reason == "update"){
-		createTab(chrome.runtime.getURL("whatsnew.html?v" + details.previousVersion));
-	}
 	// checks
 	if(localStorage["tabbed"] != "true"){
 		localStorage["tabbed"] = "";
@@ -39,8 +33,24 @@ chrome.runtime.onInstalled.addListener(function(details){
 	if(localStorage["matchname"] != "true"){
 		localStorage["matchname"] = "";
 	}
+	if(localStorage["jsbm"] == "true"){
+		chrome.permissions.contains({'origins': ["<all_urls>"]}, function(result){
+			if(!result){
+				localStorage["jsbm"] = "";
+			}
+		});
+	}else{
+		localStorage["jsbm"] = "";
+	}
 	if(!localStorage["maxcount"] || parseInt(localStorage["maxcount"]) < 2){
 		localStorage["maxcount"] = 5;
+	}
+	if(details.reason == "install"){
+		webkitNotifications.createHTMLNotification(chrome.runtime.getURL("notification_install.html")).show();
+		//createTab(chrome.runtime.getURL("whatsnew.html?vnone"));
+	}else if(details.reason == "update"){
+		webkitNotifications.createHTMLNotification(chrome.runtime.getURL("notification_update.html?v" + details.previousVersion)).show();
+		//createTab(chrome.runtime.getURL("whatsnew.html?v" + details.previousVersion));
 	}
 });
 
