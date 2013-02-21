@@ -1,0 +1,62 @@
+<html>
+    <script>
+        function nav(url){
+            if(localStorage["tabbed"]){
+                chrome.tabs.create({url: url})
+            }else{
+                chrome.tabs.getSelected(null,
+                        function(tab) {
+                            chrome.tabs.update(tab.id, {url: url});
+                        }
+                );
+            }
+        }
+        chrome.omnibox.onInputChanged.addListener(
+            function(text, suggest) {
+                if(text.substr(0,3).toLowerCase()=="go "&&(text.substr(3,7).toLowerCase()=="http://"||text.substr(3,8).toLowerCase()=="https://"||text.substr(3,6).toLowerCase()=="ftp://"||text.substr(3,7).toLowerCase()=="file://")){
+                    chrome.omnibox.setDefaultSuggestion({description: "Go to "+text.substr(3)});
+                    suggest([{content: "?"+text, description: "Search "+text+" in Bookmarks"}]);
+                    chrome.bookmarks.search(text,
+                        function(results) {
+                            var s=new Array();
+                            for(i in results){
+                                if(i>2) break;
+                                s.push({content: "go "+results[i].url, description: (results[i].title?results[i].title:results[i].url)});
+                            }
+                            suggest(s);
+                            console.log(s);
+                        }
+                    );
+                }else{
+                    chrome.omnibox.setDefaultSuggestion({description: "Search %s in Bookmarks"});
+                    chrome.bookmarks.search(text,
+                        function(results) {
+                            var s=new Array();
+                            for(i in results){
+                                if(i>3) break;
+                                s.push({content: "go "+results[i].url, description: (results[i].title?results[i].title:results[i].url)});
+                            }
+                            suggest(s);
+                            console.log(s);
+                        }
+                    );
+                }
+                /*suggest([
+                    {content: text + " one", description: "the first one"},
+                    {content: text + " number two", description: "the second entry"}
+                ]);*/
+            }
+        );
+        chrome.omnibox.onInputEntered.addListener(
+            function(text){
+                if(text.substr(0,3).toLowerCase()=="go "&&(text.substr(3,7).toLowerCase()=="http://"||text.substr(3,8).toLowerCase()=="https://"||text.substr(3,6).toLowerCase()=="ftp://"||text.substr(3,7).toLowerCase()=="file://")){
+                    nav(text.substr(3));
+                }else if(text.substr(0,1)=="?"){
+                    nav("chrome-extension://eemcgdkfndhakfknompkggombfjjjeno/main.html#q="+text.substr(1));
+                }else{
+                    nav("chrome-extension://eemcgdkfndhakfknompkggombfjjjeno/main.html#q="+text);
+                }
+            }
+        );
+    </script>
+</html>

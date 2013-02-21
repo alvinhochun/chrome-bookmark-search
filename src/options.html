@@ -1,0 +1,24 @@
+<html>
+<head><title>Bookmark Search Extension - Options</title></head>
+<script type="text/javascript">
+function save_options() {
+    localStorage["tabbed"]=document.getElementById("tabbed").checked;
+    var status = document.getElementById("status");
+    status.innerHTML = "Options Saved.";
+    setTimeout(function() {
+        status.innerHTML = "";
+    }, 750);
+}
+function restore_options() {
+    document.getElementById("tabbed").checked=localStorage["tabbed"];
+}
+
+</script>
+
+<body onload="restore_options()">
+<h1>Bookmark Search Extension - Options</h1>
+<label for="tabbed">Show search results and pages in new tab:</label><input type="checkbox" id="tabbed" onclick="save_options()" />
+<div id="status" style="background-color:yellow;color:red;"></div>
+<!--button onclick="save_options()">Save</button-->
+</body>
+</html>
