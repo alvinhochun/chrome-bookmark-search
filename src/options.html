@@ -1,44 +1,23 @@
 <html>
 <head><title>Bookmark Search Extension - Options</title></head>
-<script type="text/javascript">
-function save_options() {
-	var status = document.getElementById("status");
-	document.getElementById("maxcount").value=Number(document.getElementById("maxcount").value);
-	if(Number(document.getElementById("maxcount").value)<2){
-		status.innerHTML = "<b>Maximum items count</b> cannot be less than 2!";
-		setTimeout(function() {
-			status.innerHTML = "";
-		}, 2000);
-		return;
-	}
-    localStorage["tabbed"]=document.getElementById("tabbed").checked?"true":"";
-    localStorage["matchname"]=document.getElementById("matchname").checked?"true":"";
-    localStorage["maxcount"]=Number(document.getElementById("maxcount").value);
-    status.innerHTML = "Options Saved.";
-    setTimeout(function() {
-        status.innerHTML = "";
-    }, 1000);
-}
-function restore_options() {
-    document.getElementById("tabbed").checked=localStorage["tabbed"];
-    document.getElementById("matchname").checked=localStorage["matchname"];
-    document.getElementById("maxcount").value=Number(localStorage["maxcount"]);
-}
+<script type="text/javascript" src="options.js"></script>
 
-</script>
-
-<body onload="restore_options()">
+<body>
 <h1><a href="https://chrome.google.com/webstore/detail/hhmokalkpaiacdofbcddkogifepbaijk" target="_blank">Bookmark Search</a> Extension - Options</h1>
-<form onsubmit="save_options();return false;" action="#">
+<form id="myform">
 <table>
 <tbody>
 <tr>
 <td style="text-align:right"><label for="tabbed">Show search results and pages in new tab (except javascripts)</label></td>
-<td><input type="checkbox" id="tabbed" onclick="save_options()" /></td>
+<td><input type="checkbox" id="tabbed" /></td>
 </tr>
 <tr>
 <td style="text-align:right"><label for="matchname">Automatically selects full match on <b>name</b></label></td>
-<td><input type="checkbox" id="matchname" onclick="save_options()" /></td>
+<td><input type="checkbox" id="matchname" /></td>
+</tr>
+<tr>
+<td style="text-align:right"><label for="jsbm">Enable support for JavaScript bookmarklets</label></td>
+<td><input type="checkbox" id="jsbm" /></td>
 </tr>
 <tr>
 <td style="text-align:right"><label for="maxcount">Maximum display items count excluding default selection (min: 2, default:5)<sup>[1]</sup></label></td>
@@ -53,6 +32,6 @@ function restore_options() {
 <hr />
 [1] I don't expect you to be able to display more than 5.
 <hr />
-<a href="https://chrome.google.com/webstore/detail/hhmokalkpaiacdofbcddkogifepbaijk" target="_blank">Bookmark Search</a> version 1.2.2 (<a href="whatsnew.html#v1.2.2" target="_blank">What&apos;s new</a>)
+<a href="https://chrome.google.com/webstore/detail/hhmokalkpaiacdofbcddkogifepbaijk" target="_blank">Bookmark Search</a> version 1.3 (<a href="whatsnew.html#v1.3" target="_blank">What&apos;s new</a>)
 </body>
 </html>

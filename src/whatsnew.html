@@ -1,33 +1,20 @@
 <html>
 <head>
 <title>Bookmark Search Extension - What's New</title>
-<script>
-var versions=["v1.2.2","v1.2.1","v1.2","v1.1","v1.0"];
-function load(){
-    var v=window.location.hash.substr(1)||versions[0];
-    var i;
-    var vi=versions.length;
-    for(i=0;i<versions.length;i++){
-        if(v==versions[i])
-            vi=i;
-    }
-    for(i=vi-1;i>=0;i--){
-        document.getElementById(versions[i]).style.backgroundColor="yellow";
-    }
-    if(vi==0){
-        document.getElementById("msg").innerHTML="The current version is "+versions[0]+"!<br />";
-    }else if(vi<versions.length){
-        document.getElementById("msg").innerHTML="You have just upgraded to "+versions[0]+" from "+v+"!<br />";
-    }else{
-        document.getElementById("msg").innerHTML="Thanks for installing Bookmark Search "+versions[0]+"!<br />";
-    }
-}
-</script>
+<script src="whatsnew.js"></script>
 </head>
-<body onload="load()">
+<body>
 <h1><a href="https://chrome.google.com/webstore/detail/hhmokalkpaiacdofbcddkogifepbaijk" target="_blank">Bookmark Search</a> Extension - What's New</h1>
 <span id="msg" style="color:red"></span>
 I am sorry if this disturbs you, but I have to inform you about the changes.
+<h2>Version 1.3</h2>
+<ul id="v1.3">
+<li>(internal) Switched to manifest version 2.</li>
+<li>The persist permission to "your data on all websites" and "your tabs and browsing activity" is removed.<br />
+Instead an option is added for enabling support for JavaScript bookmarklet.<br />
+The related permissions will be requested only when the option is enabled.</li>
+<li>A bug that prevents automatically navigating to the only match when the option "Automatically selects full match on name" is disabled is fixed.</li>
+</ul>
 <h2>Version 1.2.2</h2>
 <ul id="v1.2.2">
 <li>Javascript bookmarks had never worked before due to lack of permission. This version should have fixed it.</li>
