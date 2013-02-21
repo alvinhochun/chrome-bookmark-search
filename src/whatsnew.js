@@ -1,4 +1,5 @@
 var versions = [
+	"v1.3.3",
 	"v1.3.2",
 	"v1.3",
 	"v1.2.2",
@@ -11,11 +12,6 @@ var versions = [
 window.addEventListener("load", function(){
 	var v = window.location.search.substr(1) || versions[0];
 	var i;
-	//var vi = versions.length;
-	/*for(i = 0; i < versions.length; i++){
-		if(v == versions[i])
-			vi = i;
-	}*/
 	var vi = versions.indexOf(v);
 	if(vi == -1){
 		vi = versions.length;

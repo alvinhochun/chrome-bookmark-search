@@ -17,7 +17,8 @@ function nav(url){
 }
 
 function execJS(js){
-	chrome.tabs.executeScript({'code': js});
+	//chrome.tabs.executeScript({'code': js});
+	chrome.tabs.update({'url': "javascript:" + js});
 }
 
 function escapeXML(str){
@@ -171,9 +172,9 @@ chrome.omnibox.onInputEntered.addListener(function(text){
 	}else if(urlGoMatch.test(text)){ // is "go addr"
 		nav(text.substr(3));
 	}else if(text.substr(0,1) == "?"){
-		nav("chrome-extension://eemcgdkfndhakfknompkggombfjjjeno/main.html#q=" + text.substr(1));
+		nav("chrome://bookmarks/#q=" + text.substr(1));
 	}else{
-		nav("chrome-extension://eemcgdkfndhakfknompkggombfjjjeno/main.html#q=" + text);
+		nav("chrome://bookmarks/#q=" + text);
 	}
 });
 
