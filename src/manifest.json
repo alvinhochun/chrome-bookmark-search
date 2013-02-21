@@ -1,10 +1,10 @@
 {
   "name": "Bookmark Search",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Search for bookmarks from the omnibox.",
   "background_page": "background.html",
   "omnibox": {"keyword" : "bm"},
   "icons": {"16": "icon16.png", "48": "icon48.png", "128": "icon128.png"},
-  "permissions": ["bookmarks", "tabs"],
+  "permissions": ["bookmarks", "tabs", "<all_urls>"],
   "options_page": "options.html"
 }

@@ -29,9 +29,10 @@
             return str.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/'/g,"&apos;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
         }
         
-        if(localStorage["version"]!="1.2.1"){
-            localStorage["version"]="1.2.1";
-            nav2("whatsnew.html",true);
+        if(localStorage["version"]!="1.2.2"){
+            var old=localStorage["version"];
+            localStorage["version"]="1.2.2";
+            nav2("whatsnew.html#v"+old,true);
         }
         if(localStorage["tabbed"]=="false"){
             localStorage["tabbed"]="";

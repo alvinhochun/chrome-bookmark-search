@@ -1,11 +1,39 @@
 <html>
-<head><title>Bookmark Search Extension - What's New</title></head>
-
-<body>
+<head>
+<title>Bookmark Search Extension - What's New</title>
+<script>
+var versions=["v1.2.2","v1.2.1","v1.2","v1.1","v1.0"];
+function load(){
+    var v=window.location.hash.substr(1)||versions[0];
+    var i;
+    var vi=versions.length;
+    for(i=0;i<versions.length;i++){
+        if(v==versions[i])
+            vi=i;
+    }
+    for(i=vi-1;i>=0;i--){
+        document.getElementById(versions[i]).style.backgroundColor="yellow";
+    }
+    if(vi==0){
+        document.getElementById("msg").innerHTML="The current version is "+versions[0]+"!<br />";
+    }else if(vi<versions.length){
+        document.getElementById("msg").innerHTML="You have just upgraded to "+versions[0]+" from "+v+"!<br />";
+    }else{
+        document.getElementById("msg").innerHTML="Thanks for installing Bookmark Search "+versions[0]+"!<br />";
+    }
+}
+</script>
+</head>
+<body onload="load()">
 <h1><a href="https://chrome.google.com/webstore/detail/hhmokalkpaiacdofbcddkogifepbaijk" target="_blank">Bookmark Search</a> Extension - What's New</h1>
-I am sorry if this disturbs you, but I have to inform you.
+<span id="msg" style="color:red"></span>
+I am sorry if this disturbs you, but I have to inform you about the changes.
+<h2>Version 1.2.2</h2>
+<ul id="v1.2.2">
+<li>Javascript bookmarks had never worked before due to lack of permission. This version should have fixed it.</li>
+</ul>
 <h2>Version 1.2.1</h2>
-<ul>
+<ul id="v1.2.1">
 <li>Due to my carelessness, a full match will pops out both the selected page and the bookmark search page. This is likely fixed.</li>
 <li>Automatically selects if there is only one search result.</li>
 <li>Allow setting the maximum items to show.</li>
@@ -13,18 +41,18 @@ I am sorry if this disturbs you, but I have to inform you.
 <li>Some minor improvements.</li>
 </ul>
 <h2>Version 1.2</h2>
-<ul>
+<ul id="v1.2">
 <li><b>Bookmark Search</b> can now automatically select the full match. (see <a href="options.html" target="_blank">Options</a>)</li>
 <li>Display is improved. It now shows both name and address.</li>
 <li>Some minor improvements.</li>
 <li>The icons are updated, although they are still...</li>
 </ul>
 <h2>Version 1.1</h2>
-<ul>
+<ul id="v1.1">
 <li>The search keyword has changed to "<b>bm</b>"!</li>
 </ul>
 <h2>Version 1.0</h2>
-<ul>
+<ul id="v1.0">
 <li>First release!</li>
 </ul>
 </body>
