@@ -24,6 +24,28 @@ function escapeXML(str){
 	return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&apos;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+function bookmarksToSuggestions(b, s){
+	var m = parseInt(localStorage["maxcount"])
+	var i = 0;
+	while(s.length <= m && i < b.length){
+		var v = b[i];
+		if(v.title){
+			if(jsMatch.test(v.url)){
+				s.push({'content': "go " + v.url, 'description': escapeXML(v.title) + "<dim> - JavaScript bookmarklet</dim>"});
+			}else{
+				s.push({'content': "go " + v.url, 'description': escapeXML(v.title) + "<dim> - </dim><url>" + escapeXML(v.url) + "</url>"});
+			}
+		}else{
+			if(jsMatch.test(v.url)){
+				s.push({'content': "go " + v.url, 'description': "<dim>Unnamed JavaScript bookmarklet - </dim><url>" + escapeXML(v.url) + "</url>"});
+			}else{
+				s.push({'content': "go " + v.url, 'description': "<url>" + escapeXML(v.url) + "</url>"});
+			}
+		}
+		i++;
+	}
+}
+
 // Check whether new version is installed
 chrome.runtime.onInstalled.addListener(function(details){
 	// checks
@@ -60,23 +82,7 @@ chrome.omnibox.onInputChanged.addListener(function(text, suggest) {
 		chrome.bookmarks.search(text, function(results){
 			var s = [];
 			s.push({'content': "?" + text, 'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"});
-			var len = Math.min(parseInt(localStorage["maxcount"]) - 1, results.length);
-			for(var i = 0; i < len; i++){
-				var v = results[i];
-				if(v.title){
-					if(jsMatch.test(v.url)){
-						s.push({'content': "go " + v.url, 'description': escapeXML(v.title) + "<dim> - JavaScript bookmarklet</dim>"});
-					}else{
-						s.push({'content': "go " + v.url, 'description': escapeXML(v.title) + "<dim> - </dim><url>" + escapeXML(v.url) + "</url>"});
-					}
-				}else{
-					if(jsMatch.test(v.url)){
-						s.push({'content': "go " + v.url, 'description': "<dim>Unnamed JavaScript bookmarklet - </dim><url>" + escapeXML(v.url) + "</url>"});
-					}else{
-						s.push({'content': "go " + v.url, 'description': "<url>" + escapeXML(v.url) + "</url>"});
-					}
-				}
-			}
+			bookmarksToSuggestions(results, s);
 			suggest(s);
 		});
 	}else if(urlGoMatch.test(text)){ // is "go addr"
@@ -84,23 +90,7 @@ chrome.omnibox.onInputChanged.addListener(function(text, suggest) {
 		chrome.bookmarks.search(text, function(results){
 			var s = [];
 			s.push({'content': "?" + text, 'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"});
-			var len = Math.min(parseInt(localStorage["maxcount"]) - 1, results.length);
-			for(var i = 0; i < len; i++){
-				var v = results[i];
-				if(v.title){
-					if(jsMatch.test(v.url)){
-						s.push({'content': "go " + v.url, 'description': escapeXML(v.title) + "<dim> - JavaScript bookmarklet</dim>"});
-					}else{
-						s.push({'content': "go " + v.url, 'description': escapeXML(v.title) + "<dim> - </dim><url>" + escapeXML(v.url) + "</url>"});
-					}
-				}else{
-					if(jsMatch.test(v.url)){
-						s.push({'content': "go " + v.url, 'description': "<dim>Unnamed JavaScript bookmarklet - </dim><url>" + escapeXML(v.url) + "</url>"});
-					}else{
-						s.push({'content': "go " + v.url, 'description': "<url>" + escapeXML(v.url) + "</url>"});
-					}
-				}
-			}
+			bookmarksToSuggestions(results, s);
 			suggest(s);
 		});
 	}else if(text == ""){
@@ -110,23 +100,7 @@ chrome.omnibox.onInputChanged.addListener(function(text, suggest) {
 		chrome.omnibox.setDefaultSuggestion({'description': "Search <match>%s</match> in Bookmarks"});
 		chrome.bookmarks.search(text, function(results){
 			var s = [];
-			var len = Math.min(parseInt(localStorage["maxcount"]), results.length);
-			for(var i = 0; i < len; i++){
-				var v = results[i];
-				if(v.title){
-					if(jsMatch.test(v.url)){
-						s.push({'content': "go " + v.url, 'description': escapeXML(v.title) + "<dim> - JavaScript bookmarklet</dim>"});
-					}else{
-						s.push({'content': "go " + v.url, 'description': escapeXML(v.title) + "<dim> - </dim><url>" + escapeXML(v.url) + "</url>"});
-					}
-				}else{
-					if(jsMatch.test(v.url)){
-						s.push({'content': "go " + v.url, 'description': "<dim>Unnamed JavaScript bookmarklet - </dim><url>" + escapeXML(v.url) + "</url>"});
-					}else{
-						s.push({'content': "go " + v.url, 'description': "<url>" + escapeXML(v.url) + "</url>"});
-					}
-				}
-			}
+			bookmarksToSuggestions(results, s);
 			// check if no result/single result/full match
 			if(s.length == 0){
 				chrome.omnibox.setDefaultSuggestion({'description': "Opps, no results for <match>%s</match> in Bookmarks!"});
