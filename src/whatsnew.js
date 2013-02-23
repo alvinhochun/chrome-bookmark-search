@@ -20,12 +20,6 @@ window.addEventListener("load", function(){
 	for(i = vi - 1; i >= 0; i--){
 		document.getElementById(versions[i]).style.backgroundColor="yellow";
 	}
-	var eles = document.getElementsByName("version");
-	var len = eles.length;
-	var vc = "v" + chrome.runtime.getManifest().version;
-	for(var i = 0; i < len; i++){
-		eles[i].textContent = vc;
-	}
 	if(vi == 0){
 		document.getElementById("msg_this").style.display = "";
 	}else if(vi < versions.length){
