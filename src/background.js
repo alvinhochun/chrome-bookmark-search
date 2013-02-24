@@ -1,23 +1,32 @@
-const urlGoMatch = /^go (https?|ftp|file|chrome(-extension)?):\/\/.+/i;
-const jsGoMatch = /^go javascript:.+/i;
-const urlMatch = /^(https?|ftp|file|chrome(-extension)?):\/\/.+/i;
-const jsMatch = /^javascript:.+/i;
+var urlGoMatch = /^go (https?|ftp|file|chrome(-extension)?):\/\/.+/i;
+var jsGoMatch = /^go javascript:.+/i;
+var urlMatch = /^(https?|ftp|file|chrome(-extension)?):\/\/.+/i;
+var jsMatch = /^javascript:.+/i;
 
 function createTab(url){
-	chrome.tabs.create({'url': url})
+	chrome.tabs.create({
+		'url': url
+	});
 }
+
 function nav(url){
 	if(jsMatch.test(url)){
 		console.error("Internal code error");
 	}else if(localStorage["tabbed"]){
-		chrome.tabs.create({'url': url})
+		chrome.tabs.create({
+			'url': url
+		});
 	}else{
-		chrome.tabs.update({'url': url});
+		chrome.tabs.update({
+			'url': url
+		});
 	}
 }
 
 function execJS(js){
-	chrome.tabs.update({'url': "javascript:" + js});
+	chrome.tabs.update({
+		'url': "javascript:" + js
+	});
 }
 
 function escapeXML(str){
@@ -25,21 +34,33 @@ function escapeXML(str){
 }
 
 function bookmarksToSuggestions(b, s){
-	var m = parseInt(localStorage["maxcount"])
+	var m = parseInt(localStorage["maxcount"]);
 	var i = 0;
 	while(s.length <= m && i < b.length){
 		var v = b[i];
 		if(v.title){
 			if(jsMatch.test(v.url)){
-				s.push({'content': "go " + v.url, 'description': escapeXML(v.title) + "<dim> - JavaScript bookmarklet</dim>"});
+				s.push({
+					'content': "go " + v.url,
+					'description': escapeXML(v.title) + "<dim> - JavaScript bookmarklet</dim>"
+				});
 			}else{
-				s.push({'content': "go " + v.url, 'description': escapeXML(v.title) + "<dim> - </dim><url>" + escapeXML(v.url) + "</url>"});
+				s.push({
+					'content': "go " + v.url,
+					'description': escapeXML(v.title) + "<dim> - </dim><url>" + escapeXML(v.url) + "</url>"
+				});
 			}
 		}else{
 			if(jsMatch.test(v.url)){
-				s.push({'content': "go " + v.url, 'description': "<dim>Unnamed JavaScript bookmarklet - </dim><url>" + escapeXML(v.url) + "</url>"});
+				s.push({
+					'content': "go " + v.url,
+					'description': "<dim>Unnamed JavaScript bookmarklet - </dim><url>" + escapeXML(v.url) + "</url>"
+				});
 			}else{
-				s.push({'content': "go " + v.url, 'description': "<url>" + escapeXML(v.url) + "</url>"});
+				s.push({
+					'content': "go " + v.url,
+					'description': "<url>" + escapeXML(v.url) + "</url>"
+				});
 			}
 		}
 		i++;
@@ -56,7 +77,9 @@ chrome.runtime.onInstalled.addListener(function(details){
 		localStorage["matchname"] = "";
 	}
 	if(localStorage["jsbm"] == "true"){
-		chrome.permissions.contains({'origins': ["<all_urls>"]}, function(result){
+		chrome.permissions.contains({
+			'origins': ["<all_urls>"]
+		}, function(result){
 			if(!result){
 				localStorage["jsbm"] = "";
 			}
@@ -69,68 +92,100 @@ chrome.runtime.onInstalled.addListener(function(details){
 	}
 	if(details.reason == "install"){
 		webkitNotifications.createHTMLNotification(chrome.runtime.getURL("notification_install.html")).show();
-		//createTab(chrome.runtime.getURL("whatsnew.html?vnone"));
 	}else if(details.reason == "update"){
 		webkitNotifications.createHTMLNotification(chrome.runtime.getURL("notification_update.html?v" + details.previousVersion)).show();
-		//createTab(chrome.runtime.getURL("whatsnew.html?v" + details.previousVersion));
 	}
 });
 
-chrome.omnibox.onInputChanged.addListener(function(text, suggest) {
+chrome.omnibox.onInputChanged.addListener(function(text, suggest){
 	if(jsGoMatch.test(text)){ // is "go jsbm"
-		chrome.omnibox.setDefaultSuggestion({'description': "Run JavaScript bookmarklet <url>" + escapeXML(text.substr(3)) + "</url>"});
+		chrome.omnibox.setDefaultSuggestion({
+			'description': "Run JavaScript bookmarklet <url>" + escapeXML(text.substr(3)) + "</url>"
+		});
 		chrome.bookmarks.search(text, function(results){
 			var s = [];
-			s.push({'content': "?" + text, 'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"});
+			s.push({
+				'content': "?" + text,
+				'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"
+			});
 			bookmarksToSuggestions(results, s);
 			suggest(s);
 		});
 	}else if(urlGoMatch.test(text)){ // is "go addr"
-		chrome.omnibox.setDefaultSuggestion({'description': "Go to <url>" + escapeXML(text.substr(3)) + "</url>"});
+		chrome.omnibox.setDefaultSuggestion({
+			'description': "Go to <url>" + escapeXML(text.substr(3)) + "</url>"
+		});
 		chrome.bookmarks.search(text, function(results){
 			var s = [];
-			s.push({'content': "?" + text, 'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"});
+			s.push({
+				'content': "?" + text,
+				'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"
+			});
 			bookmarksToSuggestions(results, s);
 			suggest(s);
 		});
 	}else if(text == ""){
-		chrome.omnibox.setDefaultSuggestion({'description': "Please enter keyword to search in Bookmarks"});
+		chrome.omnibox.setDefaultSuggestion({
+			'description': "Please enter keyword to search in Bookmarks"
+		});
 		suggest([]);
 	}else{
-		chrome.omnibox.setDefaultSuggestion({'description': "Search <match>%s</match> in Bookmarks"});
+		chrome.omnibox.setDefaultSuggestion({
+			'description': "Search <match>%s</match> in Bookmarks"
+		});
 		chrome.bookmarks.search(text, function(results){
 			var s = [];
 			bookmarksToSuggestions(results, s);
 			// check if no result/single result/full match
 			if(s.length == 0){
-				chrome.omnibox.setDefaultSuggestion({'description': "Opps, no results for <match>%s</match> in Bookmarks!"});
+				chrome.omnibox.setDefaultSuggestion({
+					'description': "Opps, no results for <match>%s</match> in Bookmarks!"
+				});
 			}else if(s.length == 1){
-				localStorage["s_automatchUrl"] = results[0].url
+				localStorage["s_automatchUrl"] = results[0].url;
 				var v = results[0];
 				if(v.title){
 					if(jsMatch.test(v.url)){
-						chrome.omnibox.setDefaultSuggestion({'description': escapeXML(v.title) + "<dim> (only match) - JavaScript bookmarklet</dim>"});
+						chrome.omnibox.setDefaultSuggestion({
+							'description': escapeXML(v.title) + "<dim> (only match) - JavaScript bookmarklet</dim>"
+						});
 					}else{
-						chrome.omnibox.setDefaultSuggestion({'description': escapeXML(v.title) + "<dim> (only match) - </dim><url>" + escapeXML(v.url) + "</url>"});
+						chrome.omnibox.setDefaultSuggestion({
+							'description': escapeXML(v.title) + "<dim> (only match) - </dim><url>" + escapeXML(v.url) + "</url>"
+						});
 					}
 				}else{
 					if(jsMatch.test(v.url)){
-						chrome.omnibox.setDefaultSuggestion({'description': "<dim>Unnamed JavaScript bookmarklet (only match) - </dim><url>" + escapeXML(v.url) + "</url>"});
+						chrome.omnibox.setDefaultSuggestion({
+							'description': "<dim>Unnamed JavaScript bookmarklet (only match) - </dim><url>" + escapeXML(v.url) + "</url>"
+						});
 					}else{
-						chrome.omnibox.setDefaultSuggestion({'description': "<dim>Only match - </dim><url>" + escapeXML(v.url) + "</url>"});
+						chrome.omnibox.setDefaultSuggestion({
+							'description': "<dim>Only match - </dim><url>" + escapeXML(v.url) + "</url>"
+						});
 					}
 				}
-				s[0] = {'content': "?" + text, 'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"};
+				s[0] = {
+					'content': "?" + text,
+					'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"
+				};
 			}else if(localStorage["matchname"]){
 				if(results[0] && results[0].title && results[0].title.toLowerCase() == text.toLowerCase()){
-					localStorage["s_automatchUrl"] = results[0].url
+					localStorage["s_automatchUrl"] = results[0].url;
 					var v = results[0];
 					if(jsMatch.test(v.url)){
-						chrome.omnibox.setDefaultSuggestion({'description': "<match>" + escapeXML(v.title) + "</match><dim> - JavaScript bookmarklet</dim>"});
+						chrome.omnibox.setDefaultSuggestion({
+							'description': "<match>" + escapeXML(v.title) + "</match><dim> - JavaScript bookmarklet</dim>"
+						});
 					}else{
-						chrome.omnibox.setDefaultSuggestion({'description': "<match>" + escapeXML(v.title) + "</match><dim> - </dim><url>" + escapeXML(v.url) + "</url>"});
+						chrome.omnibox.setDefaultSuggestion({
+							'description': "<match>" + escapeXML(v.title) + "</match><dim> - </dim><url>" + escapeXML(v.url) + "</url>"
+						});
 					}
-					s[0] = {'content': "?" + text, 'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"};
+					s[0] = {
+						'content': "?" + text,
+						'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"
+					};
 				}else{
 					localStorage["s_automatchUrl"] = "";
 				}
@@ -155,7 +210,7 @@ chrome.omnibox.onInputEntered.addListener(function(text){
 		}
 	}else if(urlGoMatch.test(text)){ // is "go addr"
 		nav(text.substr(3));
-	}else if(text.substr(0,1) == "?"){
+	}else if(text.substr(0, 1) == "?"){
 		nav("chrome://bookmarks/#q=" + text.substr(1));
 	}else{
 		nav("chrome://bookmarks/#q=" + text);
