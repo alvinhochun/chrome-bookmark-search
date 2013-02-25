@@ -69,7 +69,32 @@ function bookmarksToSuggestions(b, s){
 
 var bookmarks = (function(){
 	var b = {};
-	b.search = chrome.bookmarks.search;
+	b.itemEachRecursive = function r(nodeArray, callback){
+		var len = nodeArray.length;
+		var i;
+		for(i = 0; i < len; i++){
+			var n = nodeArray[i];
+			callback(n);
+			if('children' in n){
+				r(n.children, callback);
+			}
+		}
+	};
+	b.searchSubTrees = function(nodeArray, query, callback){
+		query = query.toLowerCase();
+		var sr = [];
+		b.itemEachRecursive(nodeArray, function(n){
+			if('url' in n && (n.title.toLowerCase().indexOf(query) != -1 || n.url.toLowerCase().indexOf(query) != -1)){
+				sr.push(n);
+			}
+		});
+		callback(sr);
+	};
+	b.search = function(query, callback){
+		chrome.bookmarks.getTree(function(results){
+			b.searchSubTrees(results, query, callback);
+		});
+	};
 	return b;
 })();
 
