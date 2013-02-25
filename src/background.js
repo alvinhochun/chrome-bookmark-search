@@ -67,6 +67,12 @@ function bookmarksToSuggestions(b, s){
 	}
 }
 
+var bookmarks = (function(){
+	var b = {};
+	b.search = chrome.bookmarks.search;
+	return b;
+})();
+
 // Check whether new version is installed
 chrome.runtime.onInstalled.addListener(function(details){
 	// checks
@@ -102,7 +108,7 @@ chrome.omnibox.onInputChanged.addListener(function(text, suggest){
 		chrome.omnibox.setDefaultSuggestion({
 			'description': "Run JavaScript bookmarklet <url>" + escapeXML(text.substr(3)) + "</url>"
 		});
-		chrome.bookmarks.search(text, function(results){
+		bookmarks.search(text, function(results){
 			var s = [];
 			s.push({
 				'content': "?" + text,
@@ -115,7 +121,7 @@ chrome.omnibox.onInputChanged.addListener(function(text, suggest){
 		chrome.omnibox.setDefaultSuggestion({
 			'description': "Go to <url>" + escapeXML(text.substr(3)) + "</url>"
 		});
-		chrome.bookmarks.search(text, function(results){
+		bookmarks.search(text, function(results){
 			var s = [];
 			s.push({
 				'content': "?" + text,
@@ -133,7 +139,7 @@ chrome.omnibox.onInputChanged.addListener(function(text, suggest){
 		chrome.omnibox.setDefaultSuggestion({
 			'description': "Search <match>%s</match> in Bookmarks"
 		});
-		chrome.bookmarks.search(text, function(results){
+		bookmarks.search(text, function(results){
 			var s = [];
 			bookmarksToSuggestions(results, s);
 			// check if no result/single result/full match
