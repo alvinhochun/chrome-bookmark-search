@@ -75,27 +75,36 @@ var bookmarks = (function(){
 
 // Check whether new version is installed
 chrome.runtime.onInstalled.addListener(function(details){
-	// checks
+	// Set default options and check existing options
+
+	// Links open in new tab? (=false)
 	if(localStorage["tabbed"] != "true"){
 		localStorage["tabbed"] = "";
 	}
-	if(localStorage["matchname"] != "true"){
-		localStorage["matchname"] = "";
-	}
-	if(localStorage["jsbm"] == "true"){
-		chrome.permissions.contains({
-			'origins': ["<all_urls>"]
-		}, function(result){
-			if(!result){
-				localStorage["jsbm"] = "";
-			}
-		});
+	// Automatically match full name? (=true)
+	if('matchname' in localStorage){
+		if(localStorage["matchname"] != "true"){
+			localStorage["matchname"] = "";
+		}
 	}else{
-		localStorage["jsbm"] = "";
+		localStorage["matchname"] = true;
 	}
+	// Supports bookmarklets? (=false, by default doesn't have permission)
+	chrome.permissions.contains({
+		'origins': ["<all_urls>"]
+	}, function(result){
+		if(result){
+			localStorage["jsbm"] == "true";
+		}else{
+			localStorage["jsbm"] = "";
+		}
+	});
+	// Maximum displayed items (=5)
 	if(!localStorage["maxcount"] || parseInt(localStorage["maxcount"]) < 2){
 		localStorage["maxcount"] = 5;
 	}
+
+	// Shows the installed/updated prompt
 	if(details.reason == "install"){
 		webkitNotifications.createHTMLNotification(chrome.runtime.getURL("notification_install.html")).show();
 	}else if(details.reason == "update"){
