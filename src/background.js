@@ -116,7 +116,13 @@ var bookmarks = (function(){
 			}));
 		});
 	};
-	b.search = b.searchAllSorted;
+	b.search = function(query, callback){
+		if(localStorage["searchsortv2"]){
+			b.searchAllSorted(query, callback);
+		}else{
+			chrome.bookmarks.search(query, callback);
+		}
+	};
 	return b;
 })();
 
@@ -149,6 +155,14 @@ chrome.runtime.onInstalled.addListener(function(details){
 	// Maximum displayed items (=5)
 	if(!localStorage["maxcount"] || parseInt(localStorage["maxcount"]) < 2){
 		localStorage["maxcount"] = 5;
+	}
+	// Use improved search and sorting? (=true)
+	if('searchsortv2' in localStorage){
+		if(localStorage["searchsortv2"] != "true"){
+			localStorage["searchsortv2"] = "";
+		}
+	}else{
+		localStorage["searchsortv2"] = true;
 	}
 
 	// Shows the installed/updated prompt
