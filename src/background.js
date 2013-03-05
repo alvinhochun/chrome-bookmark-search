@@ -36,7 +36,7 @@ function escapeXML(str){
 function bookmarksToSuggestions(b, s){
 	var m = parseInt(localStorage["maxcount"]);
 	var i = 0;
-	while(s.length <= m && i < b.length){
+	while(s.length < m && i < b.length){
 		var v = b[i];
 		if(v.title){
 			if(jsMatch.test(v.url)){
