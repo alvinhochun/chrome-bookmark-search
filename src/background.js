@@ -33,99 +33,6 @@ function escapeXML(str){
 	return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&apos;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function bookmarksToSuggestions(b, s){
-	var m = parseInt(localStorage["maxcount"]);
-	var i = 0;
-	while(s.length < m && i < b.length){
-		var v = b[i];
-		if(v.title){
-			if(jsMatch.test(v.url)){
-				s.push({
-					'content': "go " + v.url,
-					'description': escapeXML(v.title) + "<dim> - JavaScript bookmarklet</dim>"
-				});
-			}else{
-				s.push({
-					'content': "go " + v.url,
-					'description': escapeXML(v.title) + "<dim> - </dim><url>" + escapeXML(v.url) + "</url>"
-				});
-			}
-		}else{
-			if(jsMatch.test(v.url)){
-				s.push({
-					'content': "go " + v.url,
-					'description': "<dim>Unnamed JavaScript bookmarklet - </dim><url>" + escapeXML(v.url) + "</url>"
-				});
-			}else{
-				s.push({
-					'content': "go " + v.url,
-					'description': "<url>" + escapeXML(v.url) + "</url>"
-				});
-			}
-		}
-		i++;
-	}
-}
-
-var bookmarks = (function(){
-	var b = {};
-	b.itemEachRecursive = function r(nodeArray, callback){
-		var len = nodeArray.length;
-		var i;
-		for(i = 0; i < len; i++){
-			var n = nodeArray[i];
-			callback(n);
-			if('children' in n){
-				r(n.children, callback);
-			}
-		}
-	};
-	b.searchSubTrees = function(nodeArray, query, callback){
-		query = query.toLowerCase();
-		var sr = [];
-		b.itemEachRecursive(nodeArray, function(n){
-			if('url' in n && (n.title.toLowerCase().indexOf(query) != -1 || ((!jsMatch.test(n.url) || n.title == "") && n.url.toLowerCase().indexOf(query) != -1))){
-				sr.push(n);
-			}
-		});
-		callback(sr);
-	};
-	b.searchAll = function(query, callback){
-		chrome.bookmarks.getTree(function(results){
-			b.searchSubTrees(results, query, callback);
-		});
-	};
-	b.searchAllSorted = function(query, callback){
-		query = query.toLowerCase();
-		var queryLen = query.length;
-		b.searchAll(query, function(rs){
-			callback(rs.sort(function(a, b){
-				var x = 0, y = 0;
-				function rate(n){
-					//
-					// Level 0: Nothing special
-					// Level 1: Starts with
-					// Level 2: Exact match
-					//
-					var t = n.title.toLowerCase();
-					return t == query ? 2 : (t.substr(0, queryLen) == query ? 1 : 0);
-				}
-				x = rate(a);
-				y = rate(b);
-				return y - x;
-			}));
-		});
-	};
-	b.search = function(query, callback){
-		if(localStorage["searchsortv2"]){
-			b.searchAllSorted(query, callback);
-		}else{
-			chrome.bookmarks.search(query, callback);
-		}
-	};
-	return b;
-})();
-
 // Check whether new version is installed
 chrome.runtime.onInstalled.addListener(function(details){
 	// Set default options and check existing options
@@ -156,10 +63,14 @@ chrome.runtime.onInstalled.addListener(function(details){
 	if(!localStorage["maxcount"] || parseInt(localStorage["maxcount"]) < 2){
 		localStorage["maxcount"] = 5;
 	}
-	// Use improved search and sorting? (=true)
-	if('searchsortv2' in localStorage){
-		if(localStorage["searchsortv2"] != "true"){
-			localStorage["searchsortv2"] = "";
+	// Search algorithm (=v2)
+	if(["builtin", "v2"].indexOf(localStorage["searchalgorithm"] == -1)){
+		localStorage["searchalgorithm"] = "v2";
+		if(localStorage["searchsortv2"] === ""){
+			localStorage["searchalgorithm"] = "builtin";
+		}
+		if("searchsortv2" in localStorage){
+			localStorage.removeItem("searchsortv2");
 		}
 	}else{
 		localStorage["searchsortv2"] = true;
@@ -174,101 +85,9 @@ chrome.runtime.onInstalled.addListener(function(details){
 });
 
 chrome.omnibox.onInputChanged.addListener(function(text, suggest){
-	if(jsGoMatch.test(text)){ // is "go jsbm"
-		chrome.omnibox.setDefaultSuggestion({
-			'description': "Run JavaScript bookmarklet <url>" + escapeXML(text.substr(3)) + "</url>"
-		});
-		bookmarks.search(text, function(results){
-			var s = [];
-			s.push({
-				'content': "?" + text,
-				'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"
-			});
-			bookmarksToSuggestions(results, s);
-			suggest(s);
-		});
-	}else if(urlGoMatch.test(text)){ // is "go addr"
-		chrome.omnibox.setDefaultSuggestion({
-			'description': "Go to <url>" + escapeXML(text.substr(3)) + "</url>"
-		});
-		bookmarks.search(text, function(results){
-			var s = [];
-			s.push({
-				'content': "?" + text,
-				'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"
-			});
-			bookmarksToSuggestions(results, s);
-			suggest(s);
-		});
-	}else if(text == ""){
-		chrome.omnibox.setDefaultSuggestion({
-			'description': "Please enter keyword to search in Bookmarks"
-		});
-		suggest([]);
-	}else{
-		chrome.omnibox.setDefaultSuggestion({
-			'description': "Search <match>%s</match> in Bookmarks"
-		});
-		bookmarks.search(text, function(results){
-			var s = [];
-			bookmarksToSuggestions(results, s);
-			// check if no result/single result/full match
-			if(s.length == 0){
-				chrome.omnibox.setDefaultSuggestion({
-					'description': "Opps, no results for <match>%s</match> in Bookmarks!"
-				});
-			}else if(s.length == 1){
-				localStorage["s_automatchUrl"] = results[0].url;
-				var v = results[0];
-				if(v.title){
-					if(jsMatch.test(v.url)){
-						chrome.omnibox.setDefaultSuggestion({
-							'description': escapeXML(v.title) + "<dim> (only match) - JavaScript bookmarklet</dim>"
-						});
-					}else{
-						chrome.omnibox.setDefaultSuggestion({
-							'description': escapeXML(v.title) + "<dim> (only match) - </dim><url>" + escapeXML(v.url) + "</url>"
-						});
-					}
-				}else{
-					if(jsMatch.test(v.url)){
-						chrome.omnibox.setDefaultSuggestion({
-							'description': "<dim>Unnamed JavaScript bookmarklet (only match) - </dim><url>" + escapeXML(v.url) + "</url>"
-						});
-					}else{
-						chrome.omnibox.setDefaultSuggestion({
-							'description': "<dim>Only match - </dim><url>" + escapeXML(v.url) + "</url>"
-						});
-					}
-				}
-				s[0] = {
-					'content': "?" + text,
-					'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"
-				};
-			}else if(localStorage["matchname"]){
-				if(results[0] && results[0].title && results[0].title.toLowerCase() == text.toLowerCase()){
-					localStorage["s_automatchUrl"] = results[0].url;
-					var v = results[0];
-					if(jsMatch.test(v.url)){
-						chrome.omnibox.setDefaultSuggestion({
-							'description': "<match>" + escapeXML(v.title) + "</match><dim> - JavaScript bookmarklet</dim>"
-						});
-					}else{
-						chrome.omnibox.setDefaultSuggestion({
-							'description': "<match>" + escapeXML(v.title) + "</match><dim> - </dim><url>" + escapeXML(v.url) + "</url>"
-						});
-					}
-					s[0] = {
-						'content': "?" + text,
-						'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"
-					};
-				}else{
-					localStorage["s_automatchUrl"] = "";
-				}
-			}
-			suggest(s);
-		});
-	}
+	searchInput(text, localStorage["searchalgorithm"], suggest, chrome.omnibox.setDefaultSuggestion, function(url){
+		localStorage["s_automatchUrl"] = url;
+	});
 });
 
 chrome.omnibox.onInputEntered.addListener(function(text){

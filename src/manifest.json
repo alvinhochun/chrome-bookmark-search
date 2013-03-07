@@ -4,7 +4,7 @@
 	"manifest_version": 2,
 	"description": "Search for bookmarks from the omnibox.",
 	"icons": {"16": "icon16.png", "48": "icon48.png", "128": "icon128.png"},
-	"background": {"scripts": ["background.js"], "persistent": false},
+	"background": {"scripts": ["search_common.js", "background.js"], "persistent": false},
 	"omnibox": {"keyword" : "bm"},
 	"permissions": ["bookmarks", "notifications"],
 	"optional_permissions": ["<all_urls>"],

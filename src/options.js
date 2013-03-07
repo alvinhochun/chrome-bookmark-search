@@ -10,7 +10,6 @@ function save_options(){
 	}
 	localStorage["tabbed"] = document.getElementById("tabbed").checked ? "true" : "";
 	localStorage["matchname"] = document.getElementById("matchname").checked ? "true" : "";
-	localStorage["searchsortv2"] = document.getElementById("searchsortv2").checked ? "true" : "";
 	if(document.getElementById("jsbm").checked){
 		chrome.permissions.request({
 			'origins': ["<all_urls>"]
@@ -37,6 +36,7 @@ function save_options(){
 		});
 	}
 	localStorage["maxcount"] = parseInt(document.getElementById("maxcount").value);
+	localStorage["searchalgorithm"] = document.getElementById("searchalgorithm").value;
 	status.textContent = "Options Saved.";
 	setTimeout(function(){
 		status.textContent = "";
@@ -48,7 +48,7 @@ function restore_options(){
 	document.getElementById("matchname").checked = localStorage["matchname"];
 	document.getElementById("jsbm").checked = localStorage["jsbm"];
 	document.getElementById("maxcount").value = parseInt(localStorage["maxcount"]);
-	document.getElementById("searchsortv2").checked = localStorage["searchsortv2"];
+	document.getElementById("searchalgorithm").value = localStorage["searchalgorithm"];
 }
 
 window.addEventListener("load", function(){
