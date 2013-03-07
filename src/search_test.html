@@ -1,0 +1,52 @@
+<html>
+<head>
+<title>Bookmark Search Extension - Searching Test</title>
+<link rel="stylesheet" href="search_test.css" />
+<script type="text/javascript" src="search_common.js"></script>
+<script type="text/javascript" src="search_test.js"></script>
+<script type="text/javascript" src="page_common.js"></script>
+</head>
+<body>
+<h1><a href="https://chrome.google.com/webstore/detail/hhmokalkpaiacdofbcddkogifepbaijk" target="_blank">Bookmark Search</a> Extension - Searching Test</h1>
+<table class="omnibox-region">
+<tbody>
+<tr>
+<td style="white-space:pre;vertical-align:top;">Try here:</td>
+<td>
+<table class="omnibox-input">
+<tbody>
+<tr>
+<td>
+<span class="omnibox-provider">Bookmark Search</span>
+</td>
+<td style="width:100%;">
+<input id="query" type="text" value="" autocomplete="off" spellcheck="false" />
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td style="white-space:pre;vertical-align:top;"><input type="radio" name="searchalgorithm" id="r_builtin" value="builtin" /><label for="r_builtin">Chrome built-in search</label></td>
+<td style="vertical-align:top;">
+<div class="omnibox-dropdown" id="dropdown1">
+<div class="omnibox-dropdown-item" id="itemdefault1">Please enter keyword to search in Bookmarks</div>
+</div>
+</td>
+</tr>
+<tr>
+<td style="white-space:pre;vertical-align:top;"><input type="radio" name="searchalgorithm" id="r_v2" value="v2" /><label for="r_v2">Bookmark Search version 2</label></td>
+<td style="vertical-align:top;">
+<div class="omnibox-dropdown" id="dropdown2">
+<div class="omnibox-dropdown-item" id="itemdefault2">Please enter keyword to search in Bookmarks</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div id="status" style="background-color:yellow;color:red;"></div><br />
+<hr />
+<a href="https://chrome.google.com/webstore/detail/hhmokalkpaiacdofbcddkogifepbaijk" target="_blank">Bookmark Search</a> version <span name="version">this version</span> (<a href="whatsnew.html" target="_blank">What&apos;s new</a>)
+</body>
+</html>

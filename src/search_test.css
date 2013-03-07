@@ -1,0 +1,65 @@
+.omnibox-region {
+    width: 800px;
+    font-family: "Segoe UI", Calibri, sans-serif;
+    font-size: 12pt;
+}
+.omnibox-input {
+    border: 1px solid #AAA;
+    border-radius: 2px;
+    border-spacing: 0;
+    width: 100%;
+}
+.omnibox-provider {
+    border: 1px solid #888;
+    border-radius: 2px;
+    background-image: url('icon16.png'), -webkit-linear-gradient(top, #CCC 0%, #AAA 100%);
+    background-repeat: no-repeat;
+    background-position: 3px 50%, 0;
+    padding: 0 2px 0 21px;
+    display: inline-block;
+	height: 19px;
+	line-height: 19px;
+	white-space: nowrap;
+}
+#query {
+    padding: 0;
+    margin: 0;
+    border: none;
+    font-family: "Segoe UI", Calibri, sans-serif;
+    font-size: 12pt;
+    outline-width: 0;
+    width: 100%;
+}
+.omnibox-dropdown {
+    border: 1px solid #AAA;
+    border-radius: 4px;
+}
+.omnibox-dropdown-item {
+    background-image: url('icon16.png');
+    background-repeat: no-repeat;
+    background-position: 5px 50%;
+    text-overflow: ellipsis;
+    padding: 0 2px 0 24px;
+    height: 24px;
+    white-space: pre;
+    overflow: hidden;
+}
+.omnibox-dropdown-item:first-child {
+	background-color: #00A3FF;
+	color: #FFF;
+}
+.omnibox-dropdown-item .match {
+	font-weight: bold;
+}
+.omnibox-dropdown-item .url {
+	color: #282;
+}
+.omnibox-dropdown-item:first-child .url {
+	color: #2F2;
+}
+.omnibox-dropdown-item .dim {
+	color: #AAA;
+}
+.omnibox-dropdown-item:first-child .dim {
+	color: #DDD;
+}
