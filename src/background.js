@@ -78,6 +78,7 @@ chrome.runtime.onInstalled.addListener(function(details){
 
 	// Shows the installed/updated prompt
 	if(details.reason == "install"){
+		createTab(chrome.runtime.getURL("options.html"));
 		webkitNotifications.createHTMLNotification(chrome.runtime.getURL("notification_install.html")).show();
 	}else if(details.reason == "update"){
 		webkitNotifications.createHTMLNotification(chrome.runtime.getURL("notification_update.html?v" + details.previousVersion)).show();
