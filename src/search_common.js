@@ -123,11 +123,13 @@ var searchInput = function(text, algorithm, suggest, setDefault, setDefaultUrl){
 			suggest(s);
 		});
 	}else if(text == ""){
+		setDefaultUrl("");
 		setDefault({
 			'description': "Please enter keyword to search in Bookmarks"
 		});
 		suggest([]);
 	}else{
+		setDefaultUrl("");
 		setDefault({
 			'description': "Search <match>%s</match> in Bookmarks"
 		});
@@ -136,6 +138,7 @@ var searchInput = function(text, algorithm, suggest, setDefault, setDefaultUrl){
 			bookmarksToSuggestions(results, s);
 			// check if no result/single result/full match
 			if(s.length == 0){
+				setDefaultUrl("");
 				setDefault({
 					'description': "Opps, no results for <match>%s</match> in Bookmarks!"
 				});
