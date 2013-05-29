@@ -9,17 +9,28 @@ function createTab(url){
 	});
 }
 
-function nav(url){
+function nav(url, disposition){
 	if(jsMatch.test(url)){
 		console.error("Internal code error");
-	}else if(localStorage["tabbed"]){
-		chrome.tabs.create({
-			'url': url
-		});
 	}else{
-		chrome.tabs.update({
-			'url': url
-		});
+		switch(disposition){
+		case "newForegroundTab":
+			chrome.tabs.create({
+				'url': url
+			});
+			break;
+		case "newBackgroundTab":
+			chrome.tabs.create({
+				'url': url,
+				'active': false
+			});
+			break;
+		case "currentTab":
+		default:
+			chrome.tabs.update({
+				'url': url
+			});
+		}
 	}
 }
 
@@ -38,8 +49,17 @@ chrome.runtime.onInstalled.addListener(function(details){
 	// Set default options and check existing options
 
 	// Links open in new tab? (=false)
-	if(localStorage["tabbed"] != "true"){
-		localStorage["tabbed"] = "";
+	switch(localStorage["tabbed"]){
+	case "true":
+		localStorage["tabbed"] = "newForegroundTab";
+		break;
+	case "currentTab":
+	case "newForegroundTab":
+	case "newBackgroundTab":
+	case "disposition":
+		break;
+	default:
+		localStorage["tabbed"] = "disposition";
 	}
 	// Automatically match full name? (=true)
 	if('matchname' in localStorage){
@@ -92,7 +112,10 @@ chrome.omnibox.onInputChanged.addListener(function(text, suggest){
 	});
 });
 
-chrome.omnibox.onInputEntered.addListener(function(text){
+chrome.omnibox.onInputEntered.addListener(function(text, disposition){
+	if(localStorage["tabbed"] != "disposition"){
+		disposition = localStorage["tabbed"];
+	}
 	if(localStorage["s_automatchUrl"] && localStorage["s_automatchText"] == text){
 		text = "go " + localStorage["s_automatchUrl"];
 		localStorage["s_automatchText"] = "";
@@ -107,11 +130,11 @@ chrome.omnibox.onInputEntered.addListener(function(text){
 			}
 		}
 	}else if(urlGoMatch.test(text)){ // is "go addr"
-		nav(text.substr(3));
+		nav(text.substr(3), disposition);
 	}else if(text.substr(0, 1) == "?"){
-		nav("chrome://bookmarks/#q=" + text.substr(1));
+		nav("chrome://bookmarks/#q=" + text.substr(1), disposition);
 	}else{
-		nav("chrome://bookmarks/#q=" + text);
+		nav("chrome://bookmarks/#q=" + text, disposition);
 	}
 });
 

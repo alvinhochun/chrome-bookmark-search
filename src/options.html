@@ -10,8 +10,15 @@
 <table>
 <tbody>
 <tr>
-<td style="text-align:right"><label for="tabbed">Show pages in new tab (except JavaScript bookmarklets)</label></td>
-<td><input type="checkbox" id="tabbed" /></td>
+<td style="text-align:right"><label for="tabbed">Open bookmarks on</label></td>
+<td>
+<select id="tabbed">
+<option value="currentTab">the current tab</option>
+<option value="newForegroundTab">new tab</option>
+<option value="newBackgroundTab">new tab in background</option>
+<option value="disposition">the current tab, or new tab when Alt+Enter is pressed</option>
+</select>
+</td>
 </tr>
 <tr>
 <td style="text-align:right"><label for="matchname">Automatically selects full match on <b>name</b></label></td>

@@ -8,7 +8,7 @@ function save_options(){
 		}, 5000);
 		return;
 	}
-	localStorage["tabbed"] = document.getElementById("tabbed").checked ? "true" : "";
+	localStorage["tabbed"] = document.getElementById("tabbed").value;
 	localStorage["matchname"] = document.getElementById("matchname").checked ? "true" : "";
 	if(document.getElementById("jsbm").checked){
 		chrome.permissions.request({
@@ -47,7 +47,7 @@ function save_options(){
 }
 
 function restore_options(){
-	document.getElementById("tabbed").checked = localStorage["tabbed"];
+	document.getElementById("tabbed").value = localStorage["tabbed"];
 	document.getElementById("matchname").checked = localStorage["matchname"];
 	document.getElementById("jsbm").checked = localStorage["jsbm"];
 	document.getElementById("maxcount").value = parseInt(localStorage["maxcount"]);
