@@ -19,7 +19,7 @@ function save_options(){
 			}else{
 				localStorage["jsbm"] = "";
 				document.getElementById("jsbm").checked = "";
-				status.textContent = "JavaScript bookmarklets does not work without the extra premissions.";
+				status.textContent = "JavaScript bookmarklets does not work without the extra premissions. Here is the error message from Chrome: " + chrome.extension.lastError.message;
 				setTimeout(function(){
 					status.textContent = "";
 				}, 5000);
