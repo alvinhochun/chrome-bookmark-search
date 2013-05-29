@@ -99,9 +99,17 @@ chrome.runtime.onInstalled.addListener(function(details){
 	// Shows the installed/updated prompt
 	if(details.reason == "install"){
 		createTab(chrome.runtime.getURL("options.html"));
-		webkitNotifications.createHTMLNotification(chrome.runtime.getURL("notification_install.html")).show();
+		var n = webkitNotifications.createNotification("icon48.png", "Bookmark Search v" + chrome.runtime.getManifest().version + " installed!", "To use this extension, just type bm on the omnibox (address bar).\n\nClick to view the options page.");
+		n.addEventListener("click", function(){
+			createTab(chrome.runtime.getURL("options.html"));
+		});
+		n.show();
 	}else if(details.reason == "update"){
-		webkitNotifications.createHTMLNotification(chrome.runtime.getURL("notification_update.html?v" + details.previousVersion)).show();
+		var n = webkitNotifications.createNotification("icon48.png", "Bookmark Search updated to v" + chrome.runtime.getManifest().version + "!", "In this version, you can control where the bookmark is opened. There are also some other changes.\n\nClick to view the detailed changelog.");
+		n.addEventListener("click", function(){
+			createTab(chrome.runtime.getURL("whatsnew.html") + "?v" + details.previousVersion);
+		});
+		n.show();
 	}
 });
 
