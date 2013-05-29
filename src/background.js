@@ -133,7 +133,7 @@ chrome.omnibox.onInputEntered.addListener(function(text, disposition){
 		if(localStorage["jsbm"]){
 			execJS(text.substr(14));
 		}else{
-			if(confirm("JavaScript bookmarklet support is not enabled. Do you wish to enable it in the options page now?")){
+			if(confirm("JavaScript bookmarklet support is not enabled yet. Do you wish to enable it in the options page now?")){
 				createTab(chrome.runtime.getURL("options.html"));
 			}
 		}
