@@ -51,11 +51,12 @@ chrome.runtime.onInstalled.addListener(function(details){
 	}
 	// Supports bookmarklets? (=false, by default doesn't have permission)
 	chrome.permissions.contains({
-		'origins': ["<all_urls>"]
+		'permissions': ["activeTab"]
 	}, function(result){
 		if(result){
 			localStorage["jsbm"] == "true";
 		}else{
+			// no need to remove "<all_urls>" since manifest excluded it
 			localStorage["jsbm"] = "";
 		}
 	});

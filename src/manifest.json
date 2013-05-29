@@ -7,6 +7,6 @@
 	"background": {"scripts": ["search_common.js", "background.js"], "persistent": false},
 	"omnibox": {"keyword" : "bm"},
 	"permissions": ["bookmarks", "notifications"],
-	"optional_permissions": ["<all_urls>"],
+	"optional_permissions": ["activeTab"],
 	"options_page": "options.html"
 }

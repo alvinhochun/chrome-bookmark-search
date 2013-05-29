@@ -12,7 +12,7 @@ function save_options(){
 	localStorage["matchname"] = document.getElementById("matchname").checked ? "true" : "";
 	if(document.getElementById("jsbm").checked){
 		chrome.permissions.request({
-			'origins': ["<all_urls>"]
+			'permissions': ["activeTab"]
 		}, function(granted){
 			if(granted){
 				localStorage["jsbm"] = "true";
@@ -28,7 +28,7 @@ function save_options(){
 	}else{
 		localStorage["jsbm"] = "";
 		chrome.permissions.remove({
-			'origins': ["<all_urls>"]
+			'permissions': ["activeTab"]
 		}, function(removed){
 			if(!removed){
 				status.textContent = "There is some problem when dropping the extra permissions. Please report to the developer. Here is the error message from Chrome: " + chrome.extension.lastError.message;
