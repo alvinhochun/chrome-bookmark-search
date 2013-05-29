@@ -86,14 +86,16 @@ chrome.runtime.onInstalled.addListener(function(details){
 });
 
 chrome.omnibox.onInputChanged.addListener(function(text, suggest){
+	localStorage["s_automatchText"] = text;
 	searchInput(text, localStorage["searchalgorithm"], suggest, chrome.omnibox.setDefaultSuggestion, function(url){
 		localStorage["s_automatchUrl"] = url;
 	});
 });
 
 chrome.omnibox.onInputEntered.addListener(function(text){
-	if(localStorage["s_automatchUrl"]){
+	if(localStorage["s_automatchUrl"] && localStorage["s_automatchText"] == text){
 		text = "go " + localStorage["s_automatchUrl"];
+		localStorage["s_automatchText"] = "";
 		localStorage["s_automatchUrl"] = "";
 	}
 	if(jsGoMatch.test(text)){ // is "go jsbm"
@@ -114,9 +116,11 @@ chrome.omnibox.onInputEntered.addListener(function(text){
 });
 
 chrome.omnibox.onInputStarted.addListener(function(){
+	localStorage["s_automatchText"] = "";
 	localStorage["s_automatchUrl"] = "";
 });
 
 chrome.omnibox.onInputCancelled.addListener(function(){
+	localStorage["s_automatchText"] = "";
 	localStorage["s_automatchUrl"] = "";
 });
