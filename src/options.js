@@ -32,6 +32,9 @@ function save_options(){
 		}, function(removed){
 			if(!removed){
 				status.textContent = "There is some problem when dropping the extra permissions. Please report to the developer. Here is the error message from Chrome: " + chrome.extension.lastError.message;
+				setTimeout(function(){
+					status.textContent = "";
+				}, 5000);
 			}
 		});
 	}
