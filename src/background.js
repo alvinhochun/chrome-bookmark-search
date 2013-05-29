@@ -65,16 +65,15 @@ chrome.runtime.onInstalled.addListener(function(details){
 		localStorage["maxcount"] = 5;
 	}
 	// Search algorithm (=v2)
-	if(["builtin", "v2"].indexOf(localStorage["searchalgorithm"] == -1)){
-		localStorage["searchalgorithm"] = "v2";
+	if(["builtin", "v2"].indexOf(localStorage["searchalgorithm"]) == -1){
 		if(localStorage["searchsortv2"] === ""){
 			localStorage["searchalgorithm"] = "builtin";
+		}else{
+			localStorage["searchalgorithm"] = "v2";
 		}
 		if("searchsortv2" in localStorage){
 			localStorage.removeItem("searchsortv2");
 		}
-	}else{
-		localStorage["searchsortv2"] = true;
 	}
 
 	// Shows the installed/updated prompt
