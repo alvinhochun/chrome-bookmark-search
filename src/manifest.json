@@ -9,5 +9,6 @@
 	"omnibox": {"keyword" : "bm"},
 	"permissions": ["bookmarks", "notifications"],
 	"optional_permissions": ["activeTab"],
-	"options_page": "options.html"
+	"options_page": "options.html",
+	"web_accessible_resources": ["icon48.png"]
 }
