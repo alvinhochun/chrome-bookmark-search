@@ -98,7 +98,6 @@ chrome.runtime.onInstalled.addListener(function(details){
 
 	// Shows the installed/updated prompt
 	if(details.reason == "install"){
-		createTab(chrome.runtime.getURL("options.html"));
 		var n = webkitNotifications.createNotification("icon48.png", "Bookmark Search v" + chrome.runtime.getManifest().version + " installed!", "To use this extension, just type bm on the omnibox (address bar).\n\nClick to view the options page.");
 		n.addEventListener("click", function(){
 			createTab(chrome.runtime.getURL("options.html"));
