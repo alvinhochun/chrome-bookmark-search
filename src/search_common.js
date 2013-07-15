@@ -47,6 +47,8 @@ var matching = {
 	},
 };
 
+var matching_rules = [matching.name_fullmatch, matching.name_startwith, matching.name_contains, matching.url_domain_contains];
+
 var bookmarks = (function(){
 	var b = {};
 	b.itemEachRecursive = function r(nodeArray, callback){
@@ -61,14 +63,21 @@ var bookmarks = (function(){
 		}
 	};
 	b.searchSubTrees = function(nodeArray, query, callback){
-		query = query.toLowerCase();
-		var sr = [];
+		var sr = [], i, len = matching_rules.length;
+		for(i = 0; i < len; i++){
+			sr[i] = [];
+		}
 		b.itemEachRecursive(nodeArray, function(n){
-			if('url' in n && (n.title.toLowerCase().indexOf(query) != -1 || ((!jsMatch.test(n.url) || n.title == "") && n.url.toLowerCase().indexOf(query) != -1))){
-				sr.push(n);
+			if('url' in n){
+				for(i = 0; i < len; i++){
+					if(matching_rules[i].cmp(n, query)){
+						sr[i].push(n);
+						return;
+					}
+				}
 			}
 		});
-		callback(sr);
+		callback(Array.prototype.concat.apply([], sr));
 	};
 	b.searchAll = function(query, callback){
 		chrome.bookmarks.getTree(function(results){
@@ -76,24 +85,8 @@ var bookmarks = (function(){
 		});
 	};
 	b.searchAllSorted = function(query, callback){
-		query = query.toLowerCase();
-		var queryLen = query.length;
 		b.searchAll(query, function(rs){
-			callback(rs.sort(function(a, b){
-				var x = 0, y = 0;
-				function rate(n){
-					//
-					// Level 0: Nothing special
-					// Level 1: Starts with
-					// Level 2: Exact match
-					//
-					var t = n.title.toLowerCase();
-					return t == query ? 2 : (t.substr(0, queryLen) == query ? 1 : 0);
-				}
-				x = rate(a);
-				y = rate(b);
-				return y - x;
-			}));
+			callback(rs);
 		});
 	};
 	b.search = function(query, algorithm, callback){
