@@ -2,6 +2,50 @@ var urlGoMatch = /^go (https?|ftp|file|chrome(-extension)?):\/\/.+/i;
 var jsGoMatch = /^go javascript:.+/i;
 var urlMatch = /^(https?|ftp|file|chrome(-extension)?):\/\/.+/i;
 var jsMatch = /^javascript:.+/i;
+var urlDomainMatch = /^[a-z]+:\/\/([-.a-z0-9]+)/i;
+
+var matching = {
+	'name_fullmatch': {
+		'cmp': function(b, q){
+			return b.title.toLowerCase() === q.toLowerCase();
+		}
+	},
+	'name_startwith': {
+		'cmp': function(b, q){
+			return b.title.length >= q.length && b.title.toLowerCase().substr(0, q.length).toLowerCase() === q.toLowerCase();
+		}
+	},
+	'name_contains': {
+		'cmp': function(b, q){
+			return b.title.length >= q.length && b.title.toLowerCase().indexOf(q.toLowerCase()) !== -1;
+		}
+	},
+	'url_contains': {
+		'cmp': function(b, q){
+			return ('url' in b) && !jsMatch.test(b.url) && b.url.length >= q.length && b.url.toLowerCase().indexOf(q.toLowerCase()) !== -1;
+		}
+	},
+	'url_domain_contains': {
+		'cmp': function(b, q){
+			var m;
+			if(('url' in b) && !jsMatch.test(b.url) && (m = urlDomainMatch.exec(b.url))){
+				return m[1].length >= q.length && m[1].toLowerCase().indexOf(q.toLowerCase()) !== -1;
+			}else{
+				return false;
+			}
+		}
+	},
+	'url_domain_part_match': {
+		'cmp': function(b, q){
+			var m;
+			if(('url' in b) && !jsMatch.test(b.url) && (m = urlDomainMatch.exec(b.url))){
+				return m[1].toLowerCase().split(".").indexOf(q.toLowerCase()) !== -1;
+			}else{
+				return false;
+			}
+		}
+	},
+};
 
 var bookmarks = (function(){
 	var b = {};
