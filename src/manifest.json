@@ -1,6 +1,6 @@
 {
 	"name": "Bookmark Search",
-	"version": "1.4.2",
+	"version": "1.4.2.1",
 	"manifest_version": 2,
 	"minimum_chrome_version": "28.0",
 	"description": "Search for bookmarks from the omnibox.",

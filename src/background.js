@@ -104,7 +104,7 @@ chrome.runtime.onInstalled.addListener(function(details){
 		});
 		n.show();
 	}else if(details.reason == "update"){
-		var n = webkitNotifications.createNotification("icon48.png", "Bookmark Search updated to v" + chrome.runtime.getManifest().version + "!", "In this version, you can control where the bookmark is opened. There are also some other changes.\n\nClick to view the detailed changelog.");
+		var n = webkitNotifications.createNotification("icon48.png", "Bookmark Search updated to v" + chrome.runtime.getManifest().version + "!", "I have a minor bug fixed.\n\nClick to view the detailed changelog.");
 		n.addEventListener("click", function(){
 			createTab(chrome.runtime.getURL("whatsnew.html") + "?v" + details.previousVersion);
 		});
