@@ -144,13 +144,3 @@ chrome.omnibox.onInputEntered.addListener(function(text, disposition){
 		nav("chrome://bookmarks/#q=" + text, disposition);
 	}
 });
-
-chrome.omnibox.onInputStarted.addListener(function(){
-	localStorage["s_automatchText"] = "";
-	localStorage["s_automatchUrl"] = "";
-});
-
-chrome.omnibox.onInputCancelled.addListener(function(){
-	localStorage["s_automatchText"] = "";
-	localStorage["s_automatchUrl"] = "";
-});
