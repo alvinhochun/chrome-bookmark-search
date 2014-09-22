@@ -1,11 +1,11 @@
 {
 	"name": "Bookmark Search",
-	"version": "1.4.2.1",
+	"version": "1.5.0",
 	"manifest_version": 2,
 	"minimum_chrome_version": "28.0",
 	"description": "Search for bookmarks from the omnibox.",
 	"icons": {"16": "icon16.png", "48": "icon48.png", "128": "icon128.png"},
-	"background": {"scripts": ["search_common.js", "background.js"], "persistent": false},
+	"background": {"scripts": ["fuse.min.js", "search_common.js", "background.js"], "persistent": false},
 	"omnibox": {"keyword" : "bm"},
 	"permissions": ["bookmarks", "notifications"],
 	"optional_permissions": ["activeTab"],
