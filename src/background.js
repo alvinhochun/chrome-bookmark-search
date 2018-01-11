@@ -139,8 +139,8 @@ chrome.omnibox.onInputEntered.addListener(function(text, disposition){
 	}else if(urlGoMatch.test(text)){ // is "go addr"
 		nav(text.substr(3), disposition);
 	}else if(text.substr(0, 1) == "?"){
-		nav("chrome://bookmarks/#q=" + text.substr(1), disposition);
+		nav("chrome://bookmarks/?q=" + text.substr(1), disposition);
 	}else{
-		nav("chrome://bookmarks/#q=" + text, disposition);
+		nav("chrome://bookmarks/?q=" + text, disposition);
 	}
 });
