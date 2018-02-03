@@ -145,7 +145,7 @@ var searchInput = function(text, algorithm, suggest, setDefault, setDefaultUrl){
 			if(s.length == 0){
 				setDefaultUrl("");
 				setDefault({
-					'description': "Opps, no results for <match>%s</match> in Bookmarks!"
+					'description': "Oops, no results for <match>%s</match> in Bookmarks!"
 				});
 			}else if(s.length == 1){
 				setDefaultUrl(results[0].url);
