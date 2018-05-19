@@ -20,42 +20,26 @@ var bookmarks = (function(){
 		query = query.toLowerCase();
 		var sr = [];
 		b.itemEachRecursive(nodeArray, function(n){
-			if('url' in n && (n.title.toLowerCase().indexOf(query) != -1 || ((!jsMatch.test(n.url) || n.title == "") && n.url.toLowerCase().indexOf(query) != -1))){
+			if ('url' in n) {
 				sr.push(n);
 			}
 		});
-		callback(sr);
+
+		var f = new Fuse(sr, {'keys': ['title', 'url']})
+
+		var rs = f.search(query)
+
+		callback(rs);
 	};
 	b.searchAll = function(query, callback){
 		chrome.bookmarks.getTree(function(results){
 			b.searchSubTrees(results, query, callback);
 		});
 	};
-	b.searchAllSorted = function(query, callback){
-		query = query.toLowerCase();
-		var queryLen = query.length;
-		b.searchAll(query, function(rs){
-			callback(rs.sort(function(a, b){
-				var x = 0, y = 0;
-				function rate(n){
-					//
-					// Level 0: Nothing special
-					// Level 1: Starts with
-					// Level 2: Exact match
-					//
-					var t = n.title.toLowerCase();
-					return t == query ? 2 : (t.substr(0, queryLen) == query ? 1 : 0);
-				}
-				x = rate(a);
-				y = rate(b);
-				return y - x;
-			}));
-		});
-	};
 	b.search = function(query, algorithm, callback){
 		switch(algorithm){
 		case "v2":
-			b.searchAllSorted(query, callback);
+			b.searchAll(query, callback);
 			break;
 		// case "builtin":
 		default:
