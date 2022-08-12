@@ -134,13 +134,13 @@ var searchInput = function(text, algorithm, suggest, setDefault, setDefaultUrl){
 		});
 		suggest([]);
 	}else{
-		setDefaultUrl("");
-		setDefault({
-			'description': "Search <match>%s</match> in Bookmarks"
-		});
 		bookmarks.search(text, algorithm, function(results){
 			var s = [];
 			bookmarksToSuggestions(results, s);
+			setDefaultUrl("");
+			setDefault({
+				'description': "Search <match>%s</match> in Bookmarks, result amount: " + results.length
+			});
 			// check if no result/single result/full match
 			if(s.length == 0){
 				setDefaultUrl("");
