@@ -115,7 +115,7 @@ chrome.runtime.onInstalled.addListener(async function(details){
 		chrome.notifications.create(notificationId, {
 			'type': "basic",
 			'title': "Bookmark Search updated to v" + chrome.runtime.getManifest().version + "!",
-			'message': "I have a minor bug fixed.\n\nClick to view the detailed changelog.",
+			'message': "Click to view the detailed changelog.",
 			'iconUrl': "icon48.png"
 		});
 		chrome.notifications.onClicked.addListener(function(id){
