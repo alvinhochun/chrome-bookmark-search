@@ -73,7 +73,7 @@ var bookmarksToSuggestions = async function(b, s){
 	while(s.length < m && i < b.length){
 		var v = b[i];
 		if(v.title){
-			if(jsMatch.test(v.url)){
+			if(!v.url || jsMatch.test(v.url)){
 				s.push({
 					'content': "go " + v.url,
 					'description': escapeXML(v.title) + "<dim> - JavaScript bookmarklet</dim>"
