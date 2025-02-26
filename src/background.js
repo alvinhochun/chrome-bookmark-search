@@ -109,17 +109,33 @@ chrome.runtime.onInstalled.addListener(async function(details){
 
 	// Shows the installed/updated prompt
 	if(details.reason == "install"){
-		var n = webkitNotifications.createNotification("icon48.png", "Bookmark Search v" + chrome.runtime.getManifest().version + " installed!", "To use this extension, just type bm on the omnibox (address bar).\n\nClick to view the options page.");
-		n.addEventListener("click", function(){
+		const notificationId = "chrome-bookmark-search-installed";
+		chrome.notifications.create(notificationId, {
+			'type': "basic",
+			'title': "Bookmark Search v" + chrome.runtime.getManifest().version + " installed!",
+			'message': "To use this extension, just type bm on the omnibox (address bar).\n\nClick to view the options page.",
+			'iconUrl': "icon48.png"
+		});
+		chrome.notifications.onClicked.addListener(function(id){
+			if(id !== notificationId){
+				return;
+			}
 			createTab(chrome.runtime.getURL("options.html"));
 		});
-		n.show();
 	}else if(details.reason == "update"){
-		var n = webkitNotifications.createNotification("icon48.png", "Bookmark Search updated to v" + chrome.runtime.getManifest().version + "!", "I have a minor bug fixed.\n\nClick to view the detailed changelog.");
-		n.addEventListener("click", function(){
+		const notificationId = "chrome-bookmark-search-updated";
+		chrome.notifications.create(notificationId, {
+			'type': "basic",
+			'title': "Bookmark Search updated to v" + chrome.runtime.getManifest().version + "!",
+			'message': "I have a minor bug fixed.\n\nClick to view the detailed changelog.",
+			'iconUrl': "icon48.png"
+		});
+		chrome.notifications.onClicked.addListener(function(id){
+			if(id !== notificationId){
+				return;
+			}
 			createTab(chrome.runtime.getURL("whatsnew.html") + "?v" + details.previousVersion);
 		});
-		n.show();
 	}
 });
 
