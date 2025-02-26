@@ -1,3 +1,5 @@
+importScripts("search_common.js");
+
 var urlGoMatch = /^go (https?|ftp|file|chrome(-extension)?):\/\/.+/i;
 var jsGoMatch = /^go javascript:.+/i;
 var urlMatch = /^(https?|ftp|file|chrome(-extension)?):\/\/.+/i;
