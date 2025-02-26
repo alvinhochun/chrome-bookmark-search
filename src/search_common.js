@@ -66,8 +66,9 @@ var bookmarks = (function(){
 	return b;
 })();
 
-var bookmarksToSuggestions = function(b, s){
-	var m = parseInt(localStorage["maxcount"]);
+var bookmarksToSuggestions = async function(b, s){
+	let options = await chrome.storage.sync.get(["maxcount"]);
+	var m = parseInt(options["maxcount"]);
 	var i = 0;
 	while(s.length < m && i < b.length){
 		var v = b[i];
@@ -100,31 +101,32 @@ var bookmarksToSuggestions = function(b, s){
 	}
 };
 
-var searchInput = function(text, algorithm, suggest, setDefault, setDefaultUrl){
+var searchInput = async function(text, algorithm, suggest, setDefault, setDefaultUrl){
+	let options = await chrome.storage.sync.get(["matchname"]);
 	if(jsGoMatch.test(text)){ // is "go jsbm"
 		setDefault({
 			'description': "Run JavaScript bookmarklet <url>" + escapeXML(text.substr(3)) + "</url>"
 		});
-		bookmarks.search(text, algorithm, function(results){
+		bookmarks.search(text, algorithm, async function(results){
 			var s = [];
 			s.push({
 				'content': "?" + text,
 				'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"
 			});
-			bookmarksToSuggestions(results, s);
+			await bookmarksToSuggestions(results, s);
 			suggest(s);
 		});
 	}else if(urlGoMatch.test(text)){ // is "go addr"
 		setDefault({
 			'description': "Go to <url>" + escapeXML(text.substr(3)) + "</url>"
 		});
-		bookmarks.search(text, algorithm, function(results){
+		bookmarks.search(text, algorithm, async function(results){
 			var s = [];
 			s.push({
 				'content': "?" + text,
 				'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"
 			});
-			bookmarksToSuggestions(results, s);
+			await bookmarksToSuggestions(results, s);
 			suggest(s);
 		});
 	}else if(text == ""){
@@ -138,9 +140,9 @@ var searchInput = function(text, algorithm, suggest, setDefault, setDefaultUrl){
 		setDefault({
 			'description': "Search <match>%s</match> in Bookmarks"
 		});
-		bookmarks.search(text, algorithm, function(results){
+		bookmarks.search(text, algorithm, async function(results){
 			var s = [];
-			bookmarksToSuggestions(results, s);
+			await bookmarksToSuggestions(results, s);
 			// check if no result/single result/full match
 			if(s.length == 0){
 				setDefaultUrl("");
@@ -175,7 +177,7 @@ var searchInput = function(text, algorithm, suggest, setDefault, setDefaultUrl){
 					'content': "?" + text,
 					'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"
 				};
-			}else if(localStorage["matchname"]){
+			}else if(options["matchname"]){
 				if(results[0] && results[0].title && results[0].title.toLowerCase() == text.toLowerCase()){
 					setDefaultUrl(results[0].url);
 					var v = results[0];
