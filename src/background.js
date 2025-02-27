@@ -1,7 +1,6 @@
 importScripts("search_common.js");
 
 var urlGoMatch = /^go (https?|ftp|file|chrome(-extension)?):\/\/.+/i;
-var jsGoMatch = /^go javascript:.+/i;
 var urlMatch = /^(https?|ftp|file|chrome(-extension)?):\/\/.+/i;
 var jsMatch = /^javascript:.+/i;
 
@@ -52,7 +51,6 @@ chrome.runtime.onInstalled.addListener(async function(details){
 	const options = await chrome.storage.sync.get({
 		'tabbed': "disposition",
 		'matchname': "true",
-		'jsbm': "",
 		'maxcount': 5,
 		'searchalgorithm': "v2"
 	});
@@ -77,16 +75,6 @@ chrome.runtime.onInstalled.addListener(async function(details){
 		}
 	}else{
 		options["matchname"] = true;
-	}
-	// Supports bookmarklets? (=false, by default doesn't have permission)
-	let result = await chrome.permissions.contains({
-		'permissions': ["activeTab"]
-	});
-	if(result){
-		options["jsbm"] == "true";
-	}else{
-		// no need to remove "<all_urls>" since manifest excluded it
-		options["jsbm"] = "";
 	}
 	// Maximum displayed items (=5)
 	if(!options["maxcount"] || parseInt(options["maxcount"]) < 2){
@@ -148,7 +136,7 @@ chrome.omnibox.onInputChanged.addListener(async function(text, suggest){
 });
 
 chrome.omnibox.onInputEntered.addListener(async function(text, disposition){
-	const options = await chrome.storage.sync.get(["jsbm", "tabbed"]);
+	const options = await chrome.storage.sync.get(["tabbed"]);
 	if(options["tabbed"] != "disposition"){
 		disposition = options["tabbed"];
 	}
@@ -159,15 +147,7 @@ chrome.omnibox.onInputEntered.addListener(async function(text, disposition){
 		local["s_automatchUrl"] = "";
 		await chrome.storage.local.set(local);
 	}
-	if(jsGoMatch.test(text)){ // is "go jsbm"
-		if(options["jsbm"]){
-			execJS(text.substr(14));
-		}else{
-			if(confirm("JavaScript bookmarklet support is not enabled yet. Do you wish to enable it in the options page now?")){
-				createTab(chrome.runtime.getURL("options.html"));
-			}
-		}
-	}else if(urlGoMatch.test(text)){ // is "go addr"
+	if(urlGoMatch.test(text)){ // is "go addr"
 		nav(text.substr(3), disposition);
 	}else if(text.substr(0, 1) == "?"){
 		nav("chrome://bookmarks/?q=" + text.substr(1), disposition);

@@ -1,5 +1,4 @@
 var urlGoMatch = /^go (https?|ftp|file|chrome(-extension)?):\/\/.+/i;
-var jsGoMatch = /^go javascript:.+/i;
 var urlMatch = /^(https?|ftp|file|chrome(-extension)?):\/\/.+/i;
 var jsMatch = /^javascript:.+/i;
 
@@ -69,54 +68,29 @@ var bookmarks = (function(){
 var bookmarksToSuggestions = async function(b, s){
 	let options = await chrome.storage.sync.get(["maxcount"]);
 	var m = parseInt(options["maxcount"]);
-	var i = 0;
-	while(s.length < m && i < b.length){
+	for(let i = 0; s.length < m && i < b.length; i++){
 		var v = b[i];
-		if(v.title){
-			if(!v.url || jsMatch.test(v.url)){
-				s.push({
-					'content': "go " + v.url,
-					'description': escapeXML(v.title) + "<dim> - JavaScript bookmarklet</dim>"
-				});
-			}else{
-				s.push({
-					'content': "go " + v.url,
-					'description': escapeXML(v.title) + "<dim> - </dim><url>" + escapeXML(v.url) + "</url>"
-				});
-			}
-		}else{
-			if(jsMatch.test(v.url)){
-				s.push({
-					'content': "go " + v.url,
-					'description': "<dim>Unnamed JavaScript bookmarklet - </dim><url>" + escapeXML(v.url) + "</url>"
-				});
-			}else{
-				s.push({
-					'content': "go " + v.url,
-					'description': "<url>" + escapeXML(v.url) + "</url>"
-				});
-			}
+		if(!v.url || jsMatch.test(v.url)){
+			// javascript: bookmarklets are no longer supported,
+			// because modern websites have broken them with
+			// Content-Security-Policy: script-src
+			// https://issues.chromium.org/issues/40077444
+			continue;
 		}
-		i++;
+		let description = "<url>" + escapeXML(v.url) + "</url>";
+		if(v.title){
+			description = escapeXML(v.title) + "<dim> - </dim>" + description;
+		}
+		s.push({
+			'content': "go " + v.url,
+			'description': description
+		});
 	}
 };
 
 var searchInput = async function(text, algorithm, suggest, setDefault, setDefaultUrl){
 	let options = await chrome.storage.sync.get(["matchname"]);
-	if(jsGoMatch.test(text)){ // is "go jsbm"
-		setDefault({
-			'description': "Run JavaScript bookmarklet <url>" + escapeXML(text.substr(3)) + "</url>"
-		});
-		bookmarks.search(text, algorithm, async function(results){
-			var s = [];
-			s.push({
-				'content': "?" + text,
-				'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"
-			});
-			await bookmarksToSuggestions(results, s);
-			suggest(s);
-		});
-	}else if(urlGoMatch.test(text)){ // is "go addr"
+	if(urlGoMatch.test(text)){ // is "go addr"
 		setDefault({
 			'description': "Go to <url>" + escapeXML(text.substr(3)) + "</url>"
 		});
