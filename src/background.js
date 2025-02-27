@@ -124,6 +124,10 @@ chrome.runtime.onInstalled.addListener(async function(details){
 			}
 			createTab(chrome.runtime.getURL("whatsnew.html") + "?v" + details.previousVersion);
 		});
+		// Open upgrade.html in the background,
+		// after saving the "previousVersion" to storage.local.
+		chrome.storage.local.set({'previousVersion': details.previousVersion});
+		chrome.tabs.create({'url': chrome.runtime.getURL("upgrade.html"), 'active': false});
 	}
 });
 
