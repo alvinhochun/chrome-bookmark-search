@@ -1,9 +1,4 @@
 importScripts("search_common.js");
-
-var urlGoMatch = /^go (https?|ftp|file|chrome(-extension)?):\/\/.+/i;
-var urlMatch = /^(https?|ftp|file|chrome(-extension)?):\/\/.+/i;
-var jsMatch = /^javascript:.+/i;
-
 function createTab(url){
 	chrome.tabs.create({
 		'url': url
