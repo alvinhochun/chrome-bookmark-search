@@ -82,6 +82,7 @@ var bookmarksToSuggestions = async function(b, s){
 			description = escapeXML(v.title) + "<dim> - </dim>" + description;
 		}
 		s.push({
+			'bookmark': v, // searchInput needs the associated bookmark
 			'content': "go " + v.url,
 			'description': description
 		});
@@ -89,6 +90,16 @@ var bookmarksToSuggestions = async function(b, s){
 };
 
 var searchInput = async function(text, algorithm, suggest, setDefault, setDefaultUrl){
+	function clean(suggestions){
+		// chrome.omnibox.sendSuggestions rejects unexpected properties,
+		// like the bookmark injected by bookmarksToSuggestions.
+		return suggestions.map(function(s){
+			const t = { ...s };
+			delete s["bookmark"];
+			return s;
+		});
+	}
+
 	let options = await chrome.storage.sync.get(["matchname"]);
 	if(urlGoMatch.test(text)){ // is "go addr"
 		setDefault({
@@ -101,7 +112,7 @@ var searchInput = async function(text, algorithm, suggest, setDefault, setDefaul
 				'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"
 			});
 			await bookmarksToSuggestions(results, s);
-			suggest(s);
+			suggest(clean(s));
 		});
 	}else if(text == ""){
 		setDefaultUrl("");
@@ -124,8 +135,8 @@ var searchInput = async function(text, algorithm, suggest, setDefault, setDefaul
 					'description': "Oops, no results for <match>%s</match> in Bookmarks!"
 				});
 			}else if(s.length == 1){
-				setDefaultUrl(results[0].url);
-				var v = results[0];
+				var v = s[0].bookmark;
+				setDefaultUrl(v.url);
 				if(v.title){
 					if(jsMatch.test(v.url)){
 						setDefault({
@@ -152,9 +163,9 @@ var searchInput = async function(text, algorithm, suggest, setDefault, setDefaul
 					'description': "Search <match>" + escapeXML(text) + "</match> in Bookmarks"
 				};
 			}else if(options["matchname"]){
-				if(results[0] && results[0].title && results[0].title.toLowerCase() == text.toLowerCase()){
-					setDefaultUrl(results[0].url);
-					var v = results[0];
+				var v = s[0].bookmark;
+				if(v && v.title && v.title.toLowerCase() == text.toLowerCase()){
+					setDefaultUrl(v.url);
 					if(jsMatch.test(v.url)){
 						setDefault({
 							'description': "<match>" + escapeXML(v.title) + "</match><dim> - JavaScript bookmarklet</dim>"
@@ -172,7 +183,7 @@ var searchInput = async function(text, algorithm, suggest, setDefault, setDefaul
 					setDefaultUrl("");
 				}
 			}
-			suggest(s);
+			suggest(clean(s));
 		});
 	}
 };
