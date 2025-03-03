@@ -1,7 +1,3 @@
-var urlGoMatch = /^go (https?|ftp|file|chrome(-extension)?):\/\/.+/i;
-var urlMatch = /^(https?|ftp|file|chrome(-extension)?):\/\/.+/i;
-var jsMatch = /^javascript:.+/i;
-
 function escapeXML(str){
 	return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&apos;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
