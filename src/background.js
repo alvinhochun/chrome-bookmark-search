@@ -1,5 +1,6 @@
+importScripts("search_common.js");
+
 var urlGoMatch = /^go (https?|ftp|file|chrome(-extension)?):\/\/.+/i;
-var jsGoMatch = /^go javascript:.+/i;
 var urlMatch = /^(https?|ftp|file|chrome(-extension)?):\/\/.+/i;
 var jsMatch = /^javascript:.+/i;
 
@@ -45,13 +46,19 @@ function escapeXML(str){
 }
 
 // Check whether new version is installed
-chrome.runtime.onInstalled.addListener(function(details){
+chrome.runtime.onInstalled.addListener(async function(details){
 	// Set default options and check existing options
+	const options = await chrome.storage.sync.get({
+		'tabbed': "disposition",
+		'matchname': "true",
+		'maxcount': 5,
+		'searchalgorithm': "v2"
+	});
 
 	// Links open in new tab? (=false)
-	switch(localStorage["tabbed"]){
+	switch(options["tabbed"]){
 	case "true":
-		localStorage["tabbed"] = "newForegroundTab";
+		options["tabbed"] = "newForegroundTab";
 		break;
 	case "currentTab":
 	case "newForegroundTab":
@@ -59,84 +66,92 @@ chrome.runtime.onInstalled.addListener(function(details){
 	case "disposition":
 		break;
 	default:
-		localStorage["tabbed"] = "disposition";
+		options["tabbed"] = "disposition";
 	}
 	// Automatically match full name? (=true)
-	if('matchname' in localStorage){
-		if(localStorage["matchname"] != "true"){
-			localStorage["matchname"] = "";
+	if('matchname' in options){
+		if(options["matchname"] != "true"){
+			options["matchname"] = "";
 		}
 	}else{
-		localStorage["matchname"] = true;
+		options["matchname"] = true;
 	}
-	// Supports bookmarklets? (=false, by default doesn't have permission)
-	chrome.permissions.contains({
-		'permissions': ["activeTab"]
-	}, function(result){
-		if(result){
-			localStorage["jsbm"] == "true";
-		}else{
-			// no need to remove "<all_urls>" since manifest excluded it
-			localStorage["jsbm"] = "";
-		}
-	});
 	// Maximum displayed items (=5)
-	if(!localStorage["maxcount"] || parseInt(localStorage["maxcount"]) < 2){
-		localStorage["maxcount"] = 5;
+	if(!options["maxcount"] || parseInt(options["maxcount"]) < 2){
+		options["maxcount"] = 5;
 	}
 	// Search algorithm (=v2)
-	if(["builtin", "v2"].indexOf(localStorage["searchalgorithm"]) == -1){
-		if(localStorage["searchsortv2"] === ""){
-			localStorage["searchalgorithm"] = "builtin";
+	if(["builtin", "v2"].indexOf(options["searchalgorithm"]) == -1){
+		if(options["searchsortv2"] === ""){
+			options["searchalgorithm"] = "builtin";
 		}else{
-			localStorage["searchalgorithm"] = "v2";
+			options["searchalgorithm"] = "v2";
 		}
-		if("searchsortv2" in localStorage){
-			localStorage.removeItem("searchsortv2");
+		if("searchsortv2" in options){
+			options.removeItem("searchsortv2");
 		}
 	}
+
+	// Save options
+	chrome.storage.sync.set(options);
 
 	// Shows the installed/updated prompt
 	if(details.reason == "install"){
-		var n = webkitNotifications.createNotification("icon48.png", "Bookmark Search v" + chrome.runtime.getManifest().version + " installed!", "To use this extension, just type bm on the omnibox (address bar).\n\nClick to view the options page.");
-		n.addEventListener("click", function(){
+		const notificationId = "chrome-bookmark-search-installed";
+		chrome.notifications.create(notificationId, {
+			'type': "basic",
+			'title': "Bookmark Search v" + chrome.runtime.getManifest().version + " installed!",
+			'message': "To use this extension, just type bm on the omnibox (address bar).\n\nClick to view the options page.",
+			'iconUrl': "icon48.png"
+		});
+		chrome.notifications.onClicked.addListener(function(id){
+			if(id !== notificationId){
+				return;
+			}
 			createTab(chrome.runtime.getURL("options.html"));
 		});
-		n.show();
 	}else if(details.reason == "update"){
-		var n = webkitNotifications.createNotification("icon48.png", "Bookmark Search updated to v" + chrome.runtime.getManifest().version + "!", "I have a minor bug fixed.\n\nClick to view the detailed changelog.");
-		n.addEventListener("click", function(){
+		const notificationId = "chrome-bookmark-search-updated";
+		chrome.notifications.create(notificationId, {
+			'type': "basic",
+			'title': "Bookmark Search updated to v" + chrome.runtime.getManifest().version + "!",
+			'message': "Click to view the detailed changelog.",
+			'iconUrl': "icon48.png"
+		});
+		chrome.notifications.onClicked.addListener(function(id){
+			if(id !== notificationId){
+				return;
+			}
 			createTab(chrome.runtime.getURL("whatsnew.html") + "?v" + details.previousVersion);
 		});
-		n.show();
+		// Open upgrade.html in the background,
+		// after saving the "previousVersion" to storage.local.
+		chrome.storage.local.set({'previousVersion': details.previousVersion});
+		chrome.tabs.create({'url': chrome.runtime.getURL("upgrade.html"), 'active': false});
 	}
 });
 
-chrome.omnibox.onInputChanged.addListener(function(text, suggest){
-	localStorage["s_automatchText"] = text;
-	searchInput(text, localStorage["searchalgorithm"], suggest, chrome.omnibox.setDefaultSuggestion, function(url){
-		localStorage["s_automatchUrl"] = url;
+chrome.omnibox.onInputChanged.addListener(async function(text, suggest){
+	const options = await chrome.storage.sync.get(["searchalgorithm"]);
+	await chrome.storage.local.set({'s_automatchText': text});
+	searchInput(text, options["searchalgorithm"], suggest, chrome.omnibox.setDefaultSuggestion, async function(url){
+		await chrome.storage.local.set({'s_automatchUrl': url});
 	});
 });
 
-chrome.omnibox.onInputEntered.addListener(function(text, disposition){
-	if(localStorage["tabbed"] != "disposition"){
-		disposition = localStorage["tabbed"];
+chrome.omnibox.onInputEntered.addListener(async function(text, disposition){
+	const options = await chrome.storage.sync.get(["tabbed"]);
+	if(options["tabbed"] != "disposition"){
+		disposition = options["tabbed"];
 	}
-	if(localStorage["s_automatchUrl"] && localStorage["s_automatchText"] == text){
-		text = "go " + localStorage["s_automatchUrl"];
-		localStorage["s_automatchText"] = "";
-		localStorage["s_automatchUrl"] = "";
+	const local = await chrome.storage.local.get(["s_automatchText", "s_automatchUrl"]);
+	if(local["s_automatchUrl"] && local["s_automatchText"] == text){
+		text = "go " + local["s_automatchUrl"];
+		local["s_automatchText"] = "";
+		local["s_automatchUrl"] = "";
+		await chrome.storage.local.set(local);
 	}
-	if(jsGoMatch.test(text)){ // is "go jsbm"
-		if(localStorage["jsbm"]){
-			execJS(text.substr(14));
-		}else{
-			if(confirm("JavaScript bookmarklet support is not enabled yet. Do you wish to enable it in the options page now?")){
-				createTab(chrome.runtime.getURL("options.html"));
-			}
-		}
-	}else if(urlGoMatch.test(text)){ // is "go addr"
+	if(urlGoMatch.test(text)){ // is "go addr"
 		nav(text.substr(3), disposition);
 	}else if(text.substr(0, 1) == "?"){
 		nav("chrome://bookmarks/?q=" + text.substr(1), disposition);

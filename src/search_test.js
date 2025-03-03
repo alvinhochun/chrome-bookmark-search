@@ -1,5 +1,4 @@
 var urlGoMatch = /^go (https?|ftp|file|chrome(-extension)?):\/\/.+/i;
-var jsGoMatch = /^go javascript:.+/i;
 var urlMatch = /^(https?|ftp|file|chrome(-extension)?):\/\/.+/i;
 var jsMatch = /^javascript:.+/i;
 
@@ -59,27 +58,30 @@ window.addEventListener("load", function(){
 	});
 });
 
-function save_options(){
+async function save_options(){
+	const options = {}
 	var radios = document.getElementsByName('searchalgorithm');
 	var len = radios.length;
 	var i;
 	for(i = 0; i < len; i++){
 		if(radios[i].checked){
-			localStorage["searchalgorithm"] = radios[i].value;
+			options["searchalgorithm"] = radios[i].value;
 		}
 	}
+	await chrome.storage.sync.set(options);
 	document.getElementById("status").textContent = "Options Saved.";
 	setTimeout(function(){
 		document.getElementById("status").textContent = "";
 	}, 1000);
 }
 
-function restore_options(){
+async function restore_options(){
+	const options = await chrome.storage.sync.get(["searchalgorithm"]);
 	var radios = document.getElementsByName('searchalgorithm');
 	var len = radios.length;
 	var i;
 	for(i = 0; i < len; i++){
-		if(radios[i].value == localStorage["searchalgorithm"]){
+		if(radios[i].value == options["searchalgorithm"]){
 			radios[i].checked = true;
 		}
 	}
